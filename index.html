@@ -567,6 +567,10 @@
             const studentName = document.querySelector('.student-name').innerText;
             const rubricContainer = document.getElementById('rubricContainer');
 
+            // Hide control buttons
+            const controlButtons = document.querySelectorAll('.add-btn, .copy-btn, .export-btn, .reset-btn, .save-btn, .load-btn, .export-json-btn, .import-json-btn, .export-pdf-btn');
+            controlButtons.forEach(button => button.style.display = 'none');
+
             html2canvas(rubricContainer, { scrollY: -window.scrollY }).then((canvas) => {
                 const imgData = canvas.toDataURL('image/png');
                 const imgProps = doc.getImageProperties(imgData);
@@ -575,6 +579,9 @@
 
                 doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 doc.save(`${studentName}_${title}.pdf`);
+
+                // Show control buttons again
+                controlButtons.forEach(button => button.style.display = 'inline-block');
             });
         }
 
