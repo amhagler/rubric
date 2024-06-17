@@ -62,7 +62,7 @@
         .rubric-table td[contenteditable="true"] {
             background-color: #f9f9f9;
         }
-        .add-btn, .copy-btn, .export-btn {
+        .add-btn, .copy-btn, .export-btn, .reset-btn {
             background-color: #6f263d; /* Colorado Avalanche burgundy */
             color: white;
             padding: 10px 20px;
@@ -71,7 +71,7 @@
             margin-right: 10px;
             border-radius: 4px;
         }
-        .add-btn:hover, .copy-btn:hover, .export-btn:hover {
+        .add-btn:hover, .copy-btn:hover, .export-btn:hover, .reset-btn:hover {
             background-color: #5a1f31;
         }
         .remove-btn {
@@ -160,6 +160,7 @@
             <label for="totalPoints">Total Points: </label>
             <input type="number" id="totalPoints" class="score-input" value="100" min="1">
             <button class="add-btn" onclick="calculateScores()">Set Scores</button>
+            <button class="reset-btn" onclick="resetRubric()">Reset</button>
             <div class="total-score">Overall Grade: <span id="overallGrade">0</span></div>
         </div>
         <table class="rubric-table" id="rubricTable">
@@ -347,6 +348,35 @@
             } else {
                 cells[5].classList.add('highlight');
             }
+        }
+
+        function resetRubric() {
+            // Reset all sliders and score inputs
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                slider.value = 0;
+                slider.nextElementSibling.innerText = '0';
+            });
+
+            // Clear all notes
+            const notes = document.querySelectorAll('.notes');
+            notes.forEach(note => {
+                note.value = '';
+            });
+
+            // Reset student name
+            const studentName = document.querySelector('.student-name');
+            studentName.innerText = 'Student Name';
+
+            // Reset overall grade
+            document.getElementById('overallGrade').innerText = '0';
+
+            // Remove all highlights
+            const highlightedCells = document.querySelectorAll('.highlight');
+            highlightedCells.forEach(cell => {
+                cell.classList.remove('highlight');
+                cell.style.color = 'black';
+            });
         }
 
         function copyToClipboard() {
