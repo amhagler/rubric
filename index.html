@@ -62,7 +62,7 @@
         .rubric-table td[contenteditable="true"] {
             background-color: #f9f9f9;
         }
-        .add-btn, .copy-btn, .export-btn, .reset-btn, .save-btn, .load-btn {
+        .add-btn, .copy-btn, .export-btn, .reset-btn, .save-btn, .load-btn, .export-json-btn, .import-json-btn {
             background-color: #6f263d; /* Colorado Avalanche burgundy */
             color: white;
             padding: 10px 20px;
@@ -71,7 +71,7 @@
             margin-right: 10px;
             border-radius: 4px;
         }
-        .add-btn:hover, .copy-btn:hover, .export-btn:hover, .reset-btn:hover, .save-btn:hover, .load-btn:hover {
+        .add-btn:hover, .copy-btn:hover, .export-btn:hover, .reset-btn:hover, .save-btn:hover, .load-btn:hover, .export-json-btn:hover, .import-json-btn:hover {
             background-color: #5a1f31;
         }
         .remove-btn {
@@ -144,6 +144,9 @@
             background-color: #8AACC4 !important; /* New highlight color */
             color: white !important;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -163,6 +166,9 @@
             <button class="reset-btn" onclick="resetRubric()">Reset</button>
             <button class="save-btn" onclick="saveRubric()">Save Rubric</button>
             <button class="load-btn" onclick="loadRubric()">Load Rubric</button>
+            <button class="export-json-btn" onclick="exportToJSON()">Export to JSON</button>
+            <input type="file" id="importJsonInput" class="hidden" accept=".json" onchange="importFromJSON(event)">
+            <button class="import-json-btn" onclick="document.getElementById('importJsonInput').click()">Import from JSON</button>
             <div class="total-score">Overall Grade: <span id="overallGrade">0</span></div>
         </div>
         <table class="rubric-table" id="rubricTable">
@@ -449,6 +455,84 @@
             } else {
                 alert('No saved rubric found!');
             }
+        }
+
+        function exportToJSON() {
+            const rubricTitle = document.querySelector('.rubric-title').innerText;
+            const totalPoints = document.getElementById('totalPoints').value;
+            const rows = document.querySelectorAll('#rubricTable tbody tr');
+            const rubricData = {
+                title: rubricTitle,
+                totalPoints: totalPoints,
+                criteria: []
+            };
+
+            for (let i = 0; i < rows.length; i += 3) {
+                const criteria = {
+                    name: rows[i].cells[0].innerText,
+                    weight: rows[i].cells[1].innerText,
+                    descriptions: [
+                        rows[i].cells[2].innerText,
+                        rows[i].cells[3].innerText,
+                        rows[i].cells[4].innerText,
+                        rows[i].cells[5].innerText
+                    ]
+                };
+                rubricData.criteria.push(criteria);
+            }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rubricData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "rubric.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importFromJSON(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const rubricData = JSON.parse(e.target.result);
+                document.querySelector('.rubric-title').innerText = rubricData.title;
+                document.getElementById('totalPoints').value = rubricData.totalPoints;
+                const tbody = document.querySelector('#rubricTable tbody');
+                tbody.innerHTML = '';
+
+                rubricData.criteria.forEach(criteria => {
+                    const criteriaRow = document.createElement('tr');
+                    criteriaRow.innerHTML = `
+                        <td contenteditable="true">${criteria.name}</td>
+                        <td contenteditable="true" class="weight-input">${criteria.weight}<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
+                        <td contenteditable="true">${criteria.descriptions[0]}</td>
+                        <td contenteditable="true">${criteria.descriptions[1]}</td>
+                        <td contenteditable="true">${criteria.descriptions[2]}</td>
+                        <td contenteditable="true">${criteria.descriptions[3]}</td>
+                        <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
+                    `;
+                    const sliderRow = document.createElement('tr');
+                    sliderRow.innerHTML = `
+                        <td colspan="7">
+                            <div class="slider-container">
+                                <input type="range" min="0" max="${document.getElementById('totalPoints').value * parseFloat(criteria.weight) / 100}" value="0" step="0.25" class="slider" oninput="updateScore(this)">
+                                <div contenteditable="true" class="score-input">0</div>
+                            </div>
+                        </td>
+                    `;
+                    const notesRow = document.createElement('tr');
+                    notesRow.innerHTML = '<td colspan="7"><textarea class="notes" placeholder="Enter notes..."></textarea></td>';
+
+                    tbody.appendChild(criteriaRow);
+                    tbody.appendChild(sliderRow);
+                    tbody.appendChild(notesRow);
+                });
+
+                alert('Rubric imported successfully!');
+            };
+
+            reader.readAsText(file);
         }
 
         function copyToClipboard() {
