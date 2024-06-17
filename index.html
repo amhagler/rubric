@@ -62,7 +62,7 @@
         .rubric-table td[contenteditable="true"] {
             background-color: #f9f9f9;
         }
-        .add-btn, .copy-btn, .export-btn, .reset-btn, .save-btn, .load-btn, .export-json-btn, .import-json-btn {
+        .add-btn, .copy-btn, .export-btn, .reset-btn, .save-btn, .load-btn, .export-json-btn, .import-json-btn, .export-pdf-btn {
             background-color: #6f263d; /* Colorado Avalanche burgundy */
             color: white;
             padding: 10px 20px;
@@ -71,7 +71,7 @@
             margin-right: 10px;
             border-radius: 4px;
         }
-        .add-btn:hover, .copy-btn:hover, .export-btn:hover, .reset-btn:hover, .save-btn:hover, .load-btn:hover, .export-json-btn:hover, .import-json-btn:hover {
+        .add-btn:hover, .copy-btn:hover, .export-btn:hover, .reset-btn:hover, .save-btn:hover, .load-btn:hover, .export-json-btn:hover, .import-json-btn:hover, .export-pdf-btn:hover {
             background-color: #5a1f31;
         }
         .remove-btn {
@@ -150,7 +150,7 @@
     </style>
 </head>
 <body>
-    <div class="rubric-container">
+    <div class="rubric-container" id="rubricContainer">
         <div class="rubric-header">
             <div contenteditable="true" class="rubric-title">Customizable Rubric Generator</div>
             <div contenteditable="true" class="student-name">Student Name</div>
@@ -209,8 +209,11 @@
         <button class="add-btn" onclick="addRow()">Add Criterion</button>
         <button class="copy-btn" onclick="copyToClipboard()">Copy Rubric</button>
         <button class="export-btn" onclick="exportScreenshot()">Export Screenshot</button>
+        <button class="export-pdf-btn" onclick="exportToPDF()">Export to PDF</button>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
         function addRow() {
             const table = document.getElementById('rubricTable').getElementsByTagName('tbody')[0];
@@ -556,6 +559,25 @@
             });
         }
 
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const title = document.querySelector('.rubric-title').innerText;
+            const studentName = document.querySelector('.student-name').innerText;
+            const rubricContainer = document.getElementById('rubricContainer');
+
+            html2canvas(rubricContainer, { scrollY: -window.scrollY }).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                doc.save(`${studentName}_${title}.pdf`);
+            });
+        }
+
         function updateOverallGrade() {
             const totalPoints = document.getElementById('totalPoints').value;
             const table = document.getElementById('rubricTable');
@@ -576,6 +598,5 @@
             }
         });
     </script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </body>
 </html>
