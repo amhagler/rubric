@@ -147,6 +147,57 @@
         .hidden {
             display: none;
         }
+        /* Modal Styles */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            padding-top: 100px; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .modal-footer {
+            text-align: right;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .json-textarea {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
@@ -166,9 +217,8 @@
             <button class="reset-btn" onclick="resetRubric()">Reset</button>
             <button class="save-btn" onclick="saveRubric()">Save Rubric</button>
             <button class="load-btn" onclick="loadRubric()">Load Rubric</button>
-            <button class="export-json-btn" onclick="exportToJSON()">Export to JSON</button>
-            <input type="file" id="importJsonInput" class="hidden" accept=".json" onchange="importFromJSON(event)">
-            <button class="import-json-btn" onclick="document.getElementById('importJsonInput').click()">Import from JSON</button>
+            <button class="export-json-btn" onclick="openExportModal()">Export to JSON</button>
+            <button class="import-json-btn" onclick="openImportModal()">Import from JSON</button>
             <div class="total-score">Overall Grade: <span id="overallGrade">0</span></div>
         </div>
         <table class="rubric-table" id="rubricTable">
@@ -187,17 +237,17 @@
                 <tr>
                     <td contenteditable="true">Criterion 1</td>
                     <td contenteditable="true" class="weight-input">25<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
-                    <td contenteditable="true">Excellent description</td>
-                    <td contenteditable="true">Good description</td>
-                    <td contenteditable="true">Fair description</td>
-                    <td contenteditable="true">Developing description</td>
+                    <td contenteditable="true" onclick="selectText(this)">Excellent description</td>
+                    <td contenteditable="true" onclick="selectText(this)">Good description</td>
+                    <td contenteditable="true" onclick="selectText(this)">Fair description</td>
+                    <td contenteditable="true" onclick="selectText(this)">Developing description</td>
                     <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
                 </tr>
                 <tr>
                     <td colspan="7">
                         <div class="slider-container">
                             <input type="range" min="0" max="25" value="25" step="0.25" class="slider" oninput="updateScore(this)">
-                            <div contenteditable="true" class="score-input">25</div>
+                            <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">${(25).toFixed(2)}</div>
                         </div>
                     </td>
                 </tr>
@@ -210,6 +260,40 @@
         <button class="copy-btn" onclick="copyToClipboard()">Copy Rubric</button>
         <button class="export-btn" onclick="exportScreenshot()">Export Screenshot</button>
         <button class="export-pdf-btn" onclick="exportToPDF()">Export to PDF</button>
+    </div>
+
+    <!-- Export JSON Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeExportModal()">&times;</span>
+            <div class="modal-header">Export Rubric to JSON</div>
+            <div class="modal-body">
+                <button class="export-btn" onclick="exportToJSONFile()">Export JSON File</button>
+                <button class="export-btn" onclick="generateJSONText()">Generate JSON Text</button>
+                <textarea id="exportJsonText" class="json-textarea" readonly></textarea>
+                <button class="export-btn" onclick="copyJSONToClipboard()">Copy JSON to Clipboard</button>
+            </div>
+            <div class="modal-footer">
+                <button class="close-btn" onclick="closeExportModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import JSON Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeImportModal()">&times;</span>
+            <div class="modal-header">Import Rubric from JSON</div>
+            <div class="modal-body">
+                <button class="import-btn" onclick="document.getElementById('importJsonInput').click()">Import JSON File</button>
+                <input type="file" id="importJsonInput" class="hidden" accept=".json" onchange="importFromJSONFile(event)">
+                <textarea id="importJsonText" class="json-textarea" placeholder="Paste JSON text here..."></textarea>
+                <button class="import-btn" onclick="importFromJSONText()">Import from Text</button>
+            </div>
+            <div class="modal-footer">
+                <button class="close-btn" onclick="closeImportModal()">Close</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -235,12 +319,16 @@
                 <label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div>`;
             excellentCell.contentEditable = "true";
             excellentCell.innerText = "Excellent description";
+            excellentCell.setAttribute("onclick", "selectText(this)");
             goodCell.contentEditable = "true";
             goodCell.innerText = "Good description";
+            goodCell.setAttribute("onclick", "selectText(this)");
             fairCell.contentEditable = "true";
             fairCell.innerText = "Fair description";
+            fairCell.setAttribute("onclick", "selectText(this)");
             developingCell.contentEditable = "true";
             developingCell.innerText = "Developing description";
+            developingCell.setAttribute("onclick", "selectText(this)");
             const removeButton = document.createElement('button');
             removeButton.className = 'remove-btn';
             removeButton.innerText = 'Remove';
@@ -253,7 +341,7 @@
             sliderCell.innerHTML = `
                 <div class="slider-container">
                     <input type="range" min="0" max="${totalPoints * 0.25}" value="${totalPoints * 0.25}" step="0.25" class="slider" oninput="updateScore(this)">
-                    <div contenteditable="true" class="score-input">${(totalPoints * 0.25).toFixed(2)}</div>
+                    <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">${(totalPoints * 0.25).toFixed(2)}</div>
                 </div>
             `;
 
@@ -327,6 +415,18 @@
             input.innerText = slider.value;
             highlightCategory(slider);
             updateOverallGrade();
+            moveCursorToNotes(slider);
+        }
+
+        function handleScoreInput(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const slider = input.previousElementSibling;
+                slider.value = input.innerText;
+                highlightCategory(slider);
+                updateOverallGrade();
+                moveCursorToNotes(slider);
+            }
         }
 
         function updateSlider(input) {
@@ -403,7 +503,7 @@
             for (let i = 0; i < rows.length; i += 3) {
                 const criteria = {
                     name: rows[i].cells[0].innerText,
-                    weight: rows[i].cells[1].innerText,
+                    weight: rows[i].cells[1].innerText.split('<div>')[0].trim(), // Extract only the weight value
                     descriptions: [
                         rows[i].cells[2].innerText,
                         rows[i].cells[3].innerText,
@@ -421,46 +521,29 @@
         function loadRubric() {
             const rubricData = JSON.parse(localStorage.getItem('rubricData'));
             if (rubricData) {
-                document.querySelector('.rubric-title').innerText = rubricData.title;
-                document.getElementById('totalPoints').value = rubricData.totalPoints;
-                const tbody = document.querySelector('#rubricTable tbody');
-                tbody.innerHTML = '';
-
-                rubricData.criteria.forEach(criteria => {
-                    const criteriaRow = document.createElement('tr');
-                    criteriaRow.innerHTML = `
-                        <td contenteditable="true">${criteria.name}</td>
-                        <td contenteditable="true" class="weight-input">${criteria.weight}<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
-                        <td contenteditable="true">${criteria.descriptions[0]}</td>
-                        <td contenteditable="true">${criteria.descriptions[1]}</td>
-                        <td contenteditable="true">${criteria.descriptions[2]}</td>
-                        <td contenteditable="true">${criteria.descriptions[3]}</td>
-                        <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
-                    `;
-                    const sliderRow = document.createElement('tr');
-                    sliderRow.innerHTML = `
-                        <td colspan="7">
-                            <div class="slider-container">
-                                <input type="range" min="0" max="${document.getElementById('totalPoints').value * parseFloat(criteria.weight) / 100}" value="0" step="0.25" class="slider" oninput="updateScore(this)">
-                                <div contenteditable="true" class="score-input">0</div>
-                            </div>
-                        </td>
-                    `;
-                    const notesRow = document.createElement('tr');
-                    notesRow.innerHTML = '<td colspan="7"><textarea class="notes" placeholder="Enter notes..."></textarea></td>';
-
-                    tbody.appendChild(criteriaRow);
-                    tbody.appendChild(sliderRow);
-                    tbody.appendChild(notesRow);
-                });
-
-                alert('Rubric loaded successfully!');
+                populateRubric(rubricData);
             } else {
                 alert('No saved rubric found!');
             }
         }
 
-        function exportToJSON() {
+        function exportToJSONFile() {
+            const rubricData = getCurrentRubricData();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rubricData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "rubric.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function generateJSONText() {
+            const rubricData = getCurrentRubricData();
+            document.getElementById('exportJsonText').value = JSON.stringify(rubricData, null, 2);
+        }
+
+        function getCurrentRubricData() {
             const rubricTitle = document.querySelector('.rubric-title').innerText;
             const totalPoints = document.getElementById('totalPoints').value;
             const rows = document.querySelectorAll('#rubricTable tbody tr');
@@ -473,7 +556,7 @@
             for (let i = 0; i < rows.length; i += 3) {
                 const criteria = {
                     name: rows[i].cells[0].innerText,
-                    weight: rows[i].cells[1].innerText,
+                    weight: rows[i].cells[1].innerText.split('<div>')[0].trim(), // Extract only the weight value
                     descriptions: [
                         rows[i].cells[2].innerText,
                         rows[i].cells[3].innerText,
@@ -484,58 +567,66 @@
                 rubricData.criteria.push(criteria);
             }
 
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rubricData));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "rubric.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+            return rubricData;
         }
 
-        function importFromJSON(event) {
+        function importFromJSONFile(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
 
             reader.onload = function(e) {
                 const rubricData = JSON.parse(e.target.result);
-                document.querySelector('.rubric-title').innerText = rubricData.title;
-                document.getElementById('totalPoints').value = rubricData.totalPoints;
-                const tbody = document.querySelector('#rubricTable tbody');
-                tbody.innerHTML = '';
-
-                rubricData.criteria.forEach(criteria => {
-                    const criteriaRow = document.createElement('tr');
-                    criteriaRow.innerHTML = `
-                        <td contenteditable="true">${criteria.name}</td>
-                        <td contenteditable="true" class="weight-input">${criteria.weight}<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
-                        <td contenteditable="true">${criteria.descriptions[0]}</td>
-                        <td contenteditable="true">${criteria.descriptions[1]}</td>
-                        <td contenteditable="true">${criteria.descriptions[2]}</td>
-                        <td contenteditable="true">${criteria.descriptions[3]}</td>
-                        <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
-                    `;
-                    const sliderRow = document.createElement('tr');
-                    sliderRow.innerHTML = `
-                        <td colspan="7">
-                            <div class="slider-container">
-                                <input type="range" min="0" max="${document.getElementById('totalPoints').value * parseFloat(criteria.weight) / 100}" value="0" step="0.25" class="slider" oninput="updateScore(this)">
-                                <div contenteditable="true" class="score-input">0</div>
-                            </div>
-                        </td>
-                    `;
-                    const notesRow = document.createElement('tr');
-                    notesRow.innerHTML = '<td colspan="7"><textarea class="notes" placeholder="Enter notes..."></textarea></td>';
-
-                    tbody.appendChild(criteriaRow);
-                    tbody.appendChild(sliderRow);
-                    tbody.appendChild(notesRow);
-                });
-
-                alert('Rubric imported successfully!');
+                populateRubric(rubricData);
             };
 
             reader.readAsText(file);
+        }
+
+        function importFromJSONText() {
+            const jsonText = document.getElementById('importJsonText').value;
+            try {
+                const rubricData = JSON.parse(jsonText);
+                populateRubric(rubricData);
+            } catch (e) {
+                alert('Invalid JSON text.');
+            }
+        }
+
+        function populateRubric(rubricData) {
+            document.querySelector('.rubric-title').innerText = rubricData.title;
+            document.getElementById('totalPoints').value = rubricData.totalPoints;
+            const tbody = document.querySelector('#rubricTable tbody');
+            tbody.innerHTML = '';
+
+            rubricData.criteria.forEach(criteria => {
+                const criteriaRow = document.createElement('tr');
+                criteriaRow.innerHTML = `
+                    <td contenteditable="true">${criteria.name}</td>
+                    <td contenteditable="true" class="weight-input">${criteria.weight}<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
+                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[0]}</td>
+                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[1]}</td>
+                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[2]}</td>
+                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[3]}</td>
+                    <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
+                `;
+                const sliderRow = document.createElement('tr');
+                sliderRow.innerHTML = `
+                    <td colspan="7">
+                        <div class="slider-container">
+                            <input type="range" min="0" max="${document.getElementById('totalPoints').value * parseFloat(criteria.weight) / 100}" value="0" step="0.25" class="slider" oninput="updateScore(this)">
+                            <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">0</div>
+                        </div>
+                    </td>
+                `;
+                const notesRow = document.createElement('tr');
+                notesRow.innerHTML = '<td colspan="7"><textarea class="notes" placeholder="Enter notes..."></textarea></td>';
+
+                tbody.appendChild(criteriaRow);
+                tbody.appendChild(sliderRow);
+                tbody.appendChild(notesRow);
+            });
+
+            alert('Rubric imported successfully!');
         }
 
         function copyToClipboard() {
@@ -604,6 +695,51 @@
                 updateSlider(event.target);
             }
         });
+
+        // Modal Functions
+        function openExportModal() {
+            document.getElementById('exportModal').style.display = 'block';
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+
+        function openImportModal() {
+            document.getElementById('importModal').style.display = 'block';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        function selectText(element) {
+            if (document.activeElement !== element) {
+                const range = document.createRange();
+                range.selectNodeContents(element);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+
+        function moveCursorToNotes(slider) {
+            const notes = slider.closest('tr').nextElementSibling.querySelector('.notes');
+            if (notes) {
+                notes.focus();
+            }
+        }
+
+        function copyJSONToClipboard() {
+            const jsonText = document.getElementById('exportJsonText').value;
+            const textarea = document.createElement('textarea');
+            textarea.value = jsonText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('JSON text copied to clipboard!');
+        }
     </script>
 </body>
 </html>
