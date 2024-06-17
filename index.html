@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizable Rubric Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .rubric-container {
+            width: 80%;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .rubric-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #6f263d; /* Colorado Avalanche burgundy */
+        }
+        .rubric-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #6f263d; /* Burgundy */
+            outline: none;
+        }
+        .student-name, .weight-input, .score-input {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #517ea4; /* Less saturated Colorado Avalanche blue */
+            outline: none;
+        }
+        .student-name {
+            color: #517ea4; /* Less saturated Colorado Avalanche blue */
+        }
+        .rubric-options {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .rubric-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .rubric-table th, .rubric-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .rubric-table th {
+            background-color: #517ea4; /* Less saturated Colorado Avalanche blue */
+            color: white;
+        }
+        .rubric-table td[contenteditable="true"] {
+            background-color: #f9f9f9;
+        }
+        .add-btn, .copy-btn, .export-btn {
+            background-color: #6f263d; /* Colorado Avalanche burgundy */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        .add-btn:hover, .copy-btn:hover, .export-btn:hover {
+            background-color: #5a1f31;
+        }
+        .remove-btn {
+            background-color: #6f263d; /* Colorado Avalanche burgundy */
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .remove-btn:hover {
+            background-color: #5a1f31;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .slider-label {
+            width: 50px;
+            text-align: center;
+        }
+        .slider {
+            flex-grow: 1;
+            height: 10px;
+            background: linear-gradient(to right, green, yellow, red);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 5px;
+            margin: 0 10px;
+            direction: rtl; /* Reverse the slider */
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #6f263d; /* Colorado Avalanche burgundy */
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #6f263d; /* Colorado Avalanche burgundy */
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .notes {
+            width: 100%;
+            height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            resize: none;
+        }
+        .score-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .total-score {
+            margin-left: 20px;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: #8AACC4 !important; /* New highlight color */
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="rubric-container">
+        <div class="rubric-header">
+            <div contenteditable="true" class="rubric-title">Customizable Rubric Generator</div>
+            <div contenteditable="true" class="student-name">Student Name</div>
+        </div>
+        <div class="rubric-options">
+            <label for="minGradeToggle">Set Minimum Grade to 50%: </label>
+            <input type="checkbox" id="minGradeToggle" onchange="toggleMinGrade(this)" checked>
+        </div>
+        <div class="score-container">
+            <label for="totalPoints">Total Points: </label>
+            <input type="number" id="totalPoints" class="score-input" value="100" min="1">
+            <button class="add-btn" onclick="calculateScores()">Set Scores</button>
+            <div class="total-score">Overall Grade: <span id="overallGrade">0</span></div>
+        </div>
+        <table class="rubric-table" id="rubricTable">
+            <thead>
+                <tr>
+                    <th>Criteria</th>
+                    <th>Weight</th>
+                    <th>Excellent</th>
+                    <th>Good</th>
+                    <th>Fair</th>
+                    <th>Developing</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td contenteditable="true">Criterion 1</td>
+                    <td contenteditable="true" class="weight-input">25<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
+                    <td contenteditable="true">Excellent description</td>
+                    <td contenteditable="true">Good description</td>
+                    <td contenteditable="true">Fair description</td>
+                    <td contenteditable="true">Developing description</td>
+                    <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
+                </tr>
+                <tr>
+                    <td colspan="7">
+                        <div class="slider-container">
+                            <input type="range" min="0" max="25" value="25" step="0.25" class="slider" oninput="updateScore(this)">
+                            <div contenteditable="true" class="score-input">25</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7"><textarea class="notes" placeholder="Enter notes..."></textarea></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="add-btn" onclick="addRow()">Add Criterion</button>
+        <button class="copy-btn" onclick="copyToClipboard()">Copy Rubric</button>
+        <button class="export-btn" onclick="exportScreenshot()">Export Screenshot</button>
+    </div>
+
+    <script>
+        function addRow() {
+            const table = document.getElementById('rubricTable').getElementsByTagName('tbody')[0];
+            const totalPoints = document.getElementById('totalPoints').value;
+            const newRow = table.insertRow();
+            const criteriaCell = newRow.insertCell(0);
+            const weightCell = newRow.insertCell(1);
+            const excellentCell = newRow.insertCell(2);
+            const goodCell = newRow.insertCell(3);
+            const fairCell = newRow.insertCell(4);
+            const developingCell = newRow.insertCell(5);
+            const actionCell = newRow.insertCell(6);
+
+            criteriaCell.contentEditable = "true";
+            weightCell.contentEditable = "true";
+            weightCell.className = "weight-input";
+            weightCell.innerHTML = `25
+                <div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label>
+                <label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div>`;
+            excellentCell.contentEditable = "true";
+            excellentCell.innerText = "Excellent description";
+            goodCell.contentEditable = "true";
+            goodCell.innerText = "Good description";
+            fairCell.contentEditable = "true";
+            fairCell.innerText = "Fair description";
+            developingCell.contentEditable = "true";
+            developingCell.innerText = "Developing description";
+            const removeButton = document.createElement('button');
+            removeButton.className = 'remove-btn';
+            removeButton.innerText = 'Remove';
+            removeButton.setAttribute('onclick', 'removeRow(this)');
+            actionCell.appendChild(removeButton);
+
+            const sliderRow = table.insertRow();
+            const sliderCell = sliderRow.insertCell(0);
+            sliderCell.colSpan = 7;
+            sliderCell.innerHTML = `
+                <div class="slider-container">
+                    <input type="range" min="0" max="${totalPoints * 0.25}" value="${totalPoints * 0.25}" step="0.25" class="slider" oninput="updateScore(this)">
+                    <div contenteditable="true" class="score-input">${(totalPoints * 0.25).toFixed(2)}</div>
+                </div>
+            `;
+
+            const notesRow = table.insertRow();
+            const notesCell = notesRow.insertCell(0);
+            notesCell.colSpan = 7;
+            notesCell.innerHTML = '<textarea class="notes" placeholder="Enter notes..."></textarea>';
+        }
+
+        function removeRow(button) {
+            const row = button.parentElement.parentElement;
+            const sliderRow = row.nextElementSibling;
+            const notesRow = sliderRow.nextElementSibling;
+            row.parentElement.removeChild(row);
+            if (sliderRow && sliderRow.cells.length === 1) {
+                sliderRow.parentElement.removeChild(sliderRow);
+            }
+            if (notesRow && notesRow.cells.length === 1) {
+                notesRow.parentElement.removeChild(notesRow);
+            }
+            updateOverallGrade();
+        }
+
+        function toggleMinGrade(checkbox) {
+            const sliders = document.getElementsByClassName('slider');
+            for (let slider of sliders) {
+                slider.min = checkbox.checked ? slider.max * 0.5 : 0;
+                updateScore(slider);
+            }
+        }
+
+        function updateWeightType(checkbox) {
+            const weightInput = checkbox.closest('td');
+            const weightValue = parseFloat(weightInput.innerText);
+            const totalPoints = document.getElementById('totalPoints').value;
+            const isPercentage = checkbox.value === "percentage";
+
+            weightInput.querySelectorAll('input[type="checkbox"]').forEach(input => input.checked = false);
+            checkbox.checked = true;
+
+            if (isPercentage) {
+                weightInput.innerText = weightValue > 100 ? 100 : weightValue;
+            } else {
+                weightInput.innerText = (weightValue * totalPoints / 100).toFixed(2);
+            }
+            weightInput.innerHTML += `
+                <div><label><input type="checkbox" name="weightType" value="percentage" ${isPercentage ? 'checked' : ''} onchange="updateWeightType(this)">%</label>
+                <label><input type="checkbox" name="weightType" value="points" ${!isPercentage ? 'checked' : ''} onchange="updateWeightType(this)">Points</label></div>`;
+            calculateScores();
+        }
+
+        function calculateScores() {
+            const totalPoints = document.getElementById('totalPoints').value;
+            const table = document.getElementById('rubricTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i += 3) {
+                const weightInput = rows[i].cells[1];
+                const weightType = weightInput.querySelector('input[name="weightType"]:checked').value;
+                const weight = weightType === "points" ? parseFloat(weightInput.innerText) / totalPoints * 100 : parseFloat(weightInput.innerText);
+                const sliderCell = rows[i + 1].cells[0];
+                const slider = sliderCell.getElementsByTagName('input')[0];
+                slider.max = (totalPoints * weight / 100).toFixed(2);
+                updateScore(slider);
+            }
+            updateOverallGrade();
+        }
+
+        function updateScore(slider) {
+            const input = slider.nextElementSibling;
+            input.innerText = slider.value;
+            highlightCategory(slider);
+            updateOverallGrade();
+        }
+
+        function updateSlider(input) {
+            const slider = input.previousElementSibling;
+            slider.value = input.innerText;
+            highlightCategory(slider);
+            updateOverallGrade();
+        }
+
+        function highlightCategory(slider) {
+            const score = parseFloat(slider.value);
+            const maxScore = parseFloat(slider.max);
+            const percentage = (score / maxScore) * 100;
+
+            const row = slider.closest('tr').previousElementSibling;
+            const cells = row.querySelectorAll('td[contenteditable="true"]');
+            cells.forEach((cell, index) => {
+                if (index > 1 && index < 6) {
+                    cell.classList.remove('highlight');
+                    cell.style.color = 'black';
+                }
+            });
+
+            if (percentage >= 90) {
+                cells[2].classList.add('highlight');
+            } else if (percentage >= 80) {
+                cells[3].classList.add('highlight');
+            } else if (percentage >= 66) {
+                cells[4].classList.add('highlight');
+            } else {
+                cells[5].classList.add('highlight');
+            }
+        }
+
+        function copyToClipboard() {
+            const table = document.getElementById('rubricTable');
+            const range = document.createRange();
+            range.selectNode(table);
+            window.getSelection().removeAllRanges(); // clear current selection
+            window.getSelection().addRange(range); // to select text
+            document.execCommand("copy");
+            window.getSelection().removeAllRanges(); // to deselect
+            alert("Rubric copied to clipboard!");
+        }
+
+        function exportScreenshot() {
+            const element = document.querySelector('.rubric-container');
+            html2canvas(element).then((canvas) => {
+                const link = document.createElement('a');
+                link.download = 'rubric-screenshot.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        function updateOverallGrade() {
+            const totalPoints = document.getElementById('totalPoints').value;
+            const table = document.getElementById('rubricTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let overallGrade = 0;
+
+            for (let i = 0; i < rows.length; i += 3) {
+                const sliderCell = rows[i + 1].cells[0];
+                const sliderValue = sliderCell.getElementsByTagName('input')[0].value;
+                overallGrade += parseFloat(sliderValue);
+            }
+            document.getElementById('overallGrade').innerText = overallGrade.toFixed(2);
+        }
+
+        document.addEventListener('input', function(event) {
+            if (event.target.classList.contains('score-input')) {
+                updateSlider(event.target);
+            }
+        });
+    </script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</body>
+</html>
