@@ -123,13 +123,14 @@
         }
         .notes {
             width: 100%;
-            height: 50px;
+            height: 100px; /* Larger height */
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 10px;
             margin-top: 10px;
             margin-bottom: 20px;
             resize: none;
+            font-size: 18px; /* Larger font size */
         }
         .score-container {
             display: flex;
@@ -209,6 +210,10 @@
         <div class="rubric-options">
             <label for="minGradeToggle">Set Minimum Grade to 50%: </label>
             <input type="checkbox" id="minGradeToggle" onchange="toggleMinGrade(this)" checked>
+            <br><br>
+            <label for="weightTypeGlobal">Weight Type: </label>
+            <label><input type="radio" name="weightTypeGlobal" value="percentage" checked onclick="updateGlobalWeightType(this)"> Percentage</label>
+            <label><input type="radio" name="weightTypeGlobal" value="points" onclick="updateGlobalWeightType(this)"> Points</label>
         </div>
         <div class="score-container">
             <label for="totalPoints">Total Points: </label>
@@ -236,7 +241,7 @@
             <tbody>
                 <tr>
                     <td contenteditable="true">Criterion 1</td>
-                    <td contenteditable="true" class="weight-input">25<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
+                    <td contenteditable="true" class="weight-input">25</td>
                     <td contenteditable="true" onclick="selectText(this)">Excellent description</td>
                     <td contenteditable="true" onclick="selectText(this)">Good description</td>
                     <td contenteditable="true" onclick="selectText(this)">Fair description</td>
@@ -247,7 +252,7 @@
                     <td colspan="7">
                         <div class="slider-container">
                             <input type="range" min="0" max="25" value="25" step="0.25" class="slider" oninput="updateScore(this)">
-                            <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">${(25).toFixed(2)}</div>
+                            <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">25.00</div>
                         </div>
                     </td>
                 </tr>
@@ -314,9 +319,7 @@
             criteriaCell.contentEditable = "true";
             weightCell.contentEditable = "true";
             weightCell.className = "weight-input";
-            weightCell.innerHTML = `25
-                <div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label>
-                <label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div>`;
+            weightCell.innerHTML = `25`;
             excellentCell.contentEditable = "true";
             excellentCell.innerText = "Excellent description";
             excellentCell.setAttribute("onclick", "selectText(this)");
@@ -373,24 +376,19 @@
             }
         }
 
-        function updateWeightType(checkbox) {
-            const weightInput = checkbox.closest('td');
-            const weightValue = parseFloat(weightInput.innerText);
-            const totalPoints = document.getElementById('totalPoints').value;
-            const isPercentage = checkbox.value === "percentage";
-
-            weightInput.querySelectorAll('input[type="checkbox"]').forEach(input => input.checked = false);
-            checkbox.checked = true;
-
-            if (isPercentage) {
-                weightInput.innerText = weightValue > 100 ? 100 : weightValue;
-            } else {
-                weightInput.innerText = (weightValue * totalPoints / 100).toFixed(2);
-            }
-            weightInput.innerHTML += `
-                <div><label><input type="checkbox" name="weightType" value="percentage" ${isPercentage ? 'checked' : ''} onchange="updateWeightType(this)">%</label>
-                <label><input type="checkbox" name="weightType" value="points" ${!isPercentage ? 'checked' : ''} onchange="updateWeightType(this)">Points</label></div>`;
-            calculateScores();
+        function updateGlobalWeightType(radio) {
+            const weightType = radio.value;
+            const rows = document.querySelectorAll('.rubric-table .weight-input');
+            
+            rows.forEach(row => {
+                const weightValue = parseFloat(row.innerText);
+                const totalPoints = document.getElementById('totalPoints').value;
+                if (weightType === 'points') {
+                    row.innerText = (weightValue * totalPoints / 100).toFixed(2);
+                } else {
+                    row.innerText = (weightValue > 100 ? 100 : weightValue);
+                }
+            });
         }
 
         function calculateScores() {
@@ -400,8 +398,7 @@
 
             for (let i = 0; i < rows.length; i += 3) {
                 const weightInput = rows[i].cells[1];
-                const weightType = weightInput.querySelector('input[name="weightType"]:checked').value;
-                const weight = weightType === "points" ? parseFloat(weightInput.innerText) / totalPoints * 100 : parseFloat(weightInput.innerText);
+                const weight = parseFloat(weightInput.innerText);
                 const sliderCell = rows[i + 1].cells[0];
                 const slider = sliderCell.getElementsByTagName('input')[0];
                 slider.max = (totalPoints * weight / 100).toFixed(2);
@@ -427,13 +424,6 @@
                 updateOverallGrade();
                 moveCursorToNotes(slider);
             }
-        }
-
-        function updateSlider(input) {
-            const slider = input.previousElementSibling;
-            slider.value = input.innerText;
-            highlightCategory(slider);
-            updateOverallGrade();
         }
 
         function highlightCategory(slider) {
@@ -465,14 +455,8 @@
             // Reset all sliders and score inputs
             const sliders = document.querySelectorAll('.slider');
             sliders.forEach(slider => {
-                slider.value = 0;
-                slider.nextElementSibling.innerText = '0';
-            });
-
-            // Clear all notes
-            const notes = document.querySelectorAll('.notes');
-            notes.forEach(note => {
-                note.value = '';
+                slider.value = slider.max * 0.5; // Set to 50% minimum grade
+                slider.nextElementSibling.innerText = slider.value;
             });
 
             // Reset student name
@@ -482,11 +466,14 @@
             // Reset overall grade
             document.getElementById('overallGrade').innerText = '0';
 
-            // Remove all highlights
-            const highlightedCells = document.querySelectorAll('.highlight');
-            highlightedCells.forEach(cell => {
-                cell.classList.remove('highlight');
-                cell.style.color = 'black';
+            // Reset the minimum grade toggle to 50%
+            document.getElementById('minGradeToggle').checked = true;
+            toggleMinGrade(document.getElementById('minGradeToggle'));
+            
+            // Clear all notes
+            const notes = document.querySelectorAll('.notes');
+            notes.forEach(note => {
+                note.value = '';
             });
         }
 
@@ -503,7 +490,7 @@
             for (let i = 0; i < rows.length; i += 3) {
                 const criteria = {
                     name: rows[i].cells[0].innerText,
-                    weight: rows[i].cells[1].innerText.split('<div>')[0].trim(), // Extract only the weight value
+                    weight: rows[i].cells[1].innerText.trim(),
                     descriptions: [
                         rows[i].cells[2].innerText,
                         rows[i].cells[3].innerText,
@@ -556,7 +543,7 @@
             for (let i = 0; i < rows.length; i += 3) {
                 const criteria = {
                     name: rows[i].cells[0].innerText,
-                    weight: rows[i].cells[1].innerText.split('<div>')[0].trim(), // Extract only the weight value
+                    weight: rows[i].cells[1].innerText.trim(),
                     descriptions: [
                         rows[i].cells[2].innerText,
                         rows[i].cells[3].innerText,
@@ -602,7 +589,7 @@
                 const criteriaRow = document.createElement('tr');
                 criteriaRow.innerHTML = `
                     <td contenteditable="true">${criteria.name}</td>
-                    <td contenteditable="true" class="weight-input">${criteria.weight}<div><label><input type="checkbox" name="weightType" value="percentage" checked onchange="updateWeightType(this)">%</label><label><input type="checkbox" name="weightType" value="points" onchange="updateWeightType(this)">Points</label></div></td>
+                    <td contenteditable="true" class="weight-input">${criteria.weight}</td>
                     <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[0]}</td>
                     <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[1]}</td>
                     <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[2]}</td>
