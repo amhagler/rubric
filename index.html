@@ -1,732 +1,2206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customizable Rubric Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        .rubric-container {
-            width: 80%;
-            margin: auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .rubric-header {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #6f263d; /* Colorado Avalanche burgundy */
-        }
-        .rubric-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #6f263d; /* Burgundy */
-            outline: none;
-        }
-        .student-name, .weight-input, .score-input {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #517ea4; /* Less saturated Colorado Avalanche blue */
-            outline: none;
-        }
-        .student-name {
-            color: #517ea4; /* Less saturated Colorado Avalanche blue */
-        }
-        .rubric-options {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .rubric-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .rubric-table th, .rubric-table td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-            vertical-align: top;
-        }
-        .rubric-table th {
-            background-color: #517ea4; /* Less saturated Colorado Avalanche blue */
-            color: white;
-        }
-        .rubric-table td[contenteditable="true"] {
-            background-color: #f9f9f9;
-        }
-        .add-btn, .copy-btn, .export-btn, .reset-btn, .save-btn, .load-btn, .export-json-btn, .import-json-btn, .export-pdf-btn {
-            background-color: #6f263d; /* Colorado Avalanche burgundy */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            margin-right: 10px;
-            border-radius: 4px;
-        }
-        .add-btn:hover, .copy-btn:hover, .export-btn:hover, .reset-btn:hover, .save-btn:hover, .load-btn:hover, .export-json-btn:hover, .import-json-btn:hover, .export-pdf-btn:hover {
-            background-color: #5a1f31;
-        }
-        .remove-btn {
-            background-color: #6f263d; /* Colorado Avalanche burgundy */
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .remove-btn:hover {
-            background-color: #5a1f31;
-        }
-        .slider-container {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        .slider-label {
-            width: 50px;
-            text-align: center;
-        }
-        .slider {
-            flex-grow: 1;
-            height: 10px;
-            background: linear-gradient(to right, green, yellow, red);
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            border-radius: 5px;
-            margin: 0 10px;
-            direction: rtl; /* Reverse the slider */
-        }
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #6f263d; /* Colorado Avalanche burgundy */
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #6f263d; /* Colorado Avalanche burgundy */
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .notes {
-            width: 100%;
-            height: 100px; /* Larger height */
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            resize: none;
-            font-size: 18px; /* Larger font size */
-        }
-        .score-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .total-score {
-            margin-left: 20px;
-            font-weight: bold;
-        }
-        .highlight {
-            background-color: #8AACC4 !important; /* New highlight color */
-            color: white !important;
-        }
-        .hidden {
-            display: none;
-        }
-        /* Modal Styles */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
-            padding-top: 100px; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgb(0,0,0); 
-            background-color: rgba(0,0,0,0.4); 
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 8px;
-        }
-        .modal-header {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .modal-footer {
-            text-align: right;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .json-textarea {
-            width: 100%;
-            height: 150px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            resize: vertical;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rubric Generator (Clean Card Layout)</title>
+
+  <style>
+    :root{
+      --burgundy:#6f263d;
+      --burgundy-dark:#5a1f31;
+      --blue:#517ea4;
+
+      --bg:#f5f6fa;
+      --panel:#ffffff;
+      --ink:#1f2328;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+
+      --radius:16px;
+      --shadow:0 14px 40px rgba(17,24,39,.10);
+      --shadow-sm:0 8px 22px rgba(17,24,39,.08);
+
+      --focus: rgba(81,126,164,.25);
+
+      --ok: rgba(34,197,94,.14);
+      --ok-b: rgba(34,197,94,.28);
+
+      --g: rgba(59,130,246,.10);
+      --g-b: rgba(59,130,246,.24);
+
+      --f: rgba(245,158,11,.14);
+      --f-b: rgba(245,158,11,.28);
+
+      --d: rgba(239,68,68,.14);
+      --d-b: rgba(239,68,68,.28);
+
+      --maxw: 1120px;
+
+      --desc-font: Arial, Helvetica, sans-serif;
+
+      /* PDF notes tint */
+      --pdf-note-bg: rgba(81,126,164,.14);
+      --pdf-note-bd: rgba(81,126,164,.30);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(81,126,164,.10), transparent 60%),
+                  radial-gradient(1200px 600px at 80% 0%, rgba(111,38,61,.10), transparent 60%),
+                  var(--bg);
+      color:var(--ink);
+    }
+
+    .wrap{
+      max-width: var(--maxw);
+      margin: 24px auto 64px;
+      padding: 0 18px;
+    }
+
+    /* Header */
+    .header{
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(229,231,235,.8);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      position: sticky;
+      top: 10px;
+      z-index: 5;
+      transition: padding .15s ease;
+    }
+
+    .header-top{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .title-block{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-width: 280px;
+      flex: 1 1 420px;
+    }
+
+    .title-row{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .title{
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      color: var(--burgundy);
+      margin:0;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .chip{
+      font-size:12px;
+      font-weight:700;
+      color: var(--burgundy);
+      background: rgba(111,38,61,.10);
+      border: 1px solid rgba(111,38,61,.18);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space:nowrap;
+    }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 170px;
+    }
+
+    .field label{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    input[type="text"], input[type="number"]{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, textarea:focus{
+      box-shadow: 0 0 0 4px var(--focus);
+      border-color: rgba(81,126,164,.55);
+    }
+    input[disabled]{
+      background: rgba(249,250,251,.9);
+      color: rgba(107,114,128,.95);
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      flex: 0 1 700px;
+      min-width: 280px;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 750;
+      font-size: 13px;
+      cursor:pointer;
+      background: var(--burgundy);
+      color:#fff;
+      box-shadow: var(--shadow-sm);
+      transition: transform .08s ease, background .15s ease, box-shadow .15s ease, opacity .15s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{ background: var(--burgundy-dark); }
+    .btn:active{ transform: translateY(1px); box-shadow: 0 6px 16px rgba(17,24,39,.10); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+    .btn.secondary{
+      background: rgba(81,126,164,.12);
+      color: var(--blue);
+      border: 1px solid rgba(81,126,164,.22);
+      box-shadow: none;
+    }
+    .btn.secondary:hover{ background: rgba(81,126,164,.18); }
+
+    .btn.ghost{
+      background: transparent;
+      color: var(--burgundy);
+      border: 1px solid rgba(111,38,61,.22);
+      box-shadow: none;
+    }
+    .btn.ghost:hover{ background: rgba(111,38,61,.06); }
+
+    .btn.danger{
+      background: rgba(239,68,68,.12);
+      color: rgb(185,28,28);
+      border: 1px solid rgba(239,68,68,.25);
+      box-shadow: none;
+    }
+    .btn.danger:hover{ background: rgba(239,68,68,.16); }
+
+    .toggle-row{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(229,231,235,.9);
+    }
+
+    .toggle{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .toggle label{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 650;
+      user-select:none;
+    }
+
+    .seg{
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+
+    .seg button{
+      border:1px solid var(--border);
+      background:#fff;
+      color: var(--muted);
+      font-weight: 750;
+      padding: 8px 10px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-size: 12px;
+    }
+    .seg button.active{
+      border-color: rgba(81,126,164,.35);
+      background: rgba(81,126,164,.10);
+      color: var(--blue);
+    }
+
+    .score-pill{
+      display:flex;
+      gap:8px;
+      align-items:baseline;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(111,38,61,.08);
+      border: 1px solid rgba(111,38,61,.16);
+      color: var(--burgundy);
+      font-weight: 800;
+    }
+    .score-pill small{
+      color: rgba(111,38,61,.75);
+      font-weight:700;
+      font-size: 12px;
+    }
+
+    /* Collapse button just above overall score */
+    .overall-block{
+      margin-left:auto;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:flex-end;
+    }
+
+    /* Header collapsed */
+    .header.collapsed{
+      padding: 10px 12px;
+    }
+    .header-min{
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .header.collapsed .header-top,
+    .header.collapsed .toggle-row,
+    .header.collapsed #banner,
+    .header.collapsed #settingsDrawer{
+      display:none !important;
+    }
+    .header.collapsed .header-min{
+      display:flex;
+    }
+
+    .header-min .left{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      flex: 1 1 auto;
+      min-width: 260px;
+    }
+    .header-min .right{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      flex: 0 0 auto;
+    }
+
+    /* responsive mini-edit sizing */
+    .mini-edit{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.95);
+      border: 1px solid rgba(229,231,235,.95);
+      color: var(--muted);
+      font-weight: 850;
+      font-size: 13px;
+      max-width: 100%;
+      flex: 1 1 340px;
+    }
+    .mini-edit input{
+      border:0;
+      outline:none;
+      background: transparent;
+      padding: 0;
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--ink);
+
+      width: clamp(140px, 28vw, 280px);
+      min-width: 120px;
+      max-width: 100%;
+    }
+    .mini-edit input:focus{ box-shadow:none; }
+
+    @media (max-width: 520px){
+      .header-min .right{
+        width: 100%;
+        justify-content:flex-start;
+      }
+      .mini-edit input{
+        width: clamp(120px, 55vw, 260px);
+      }
+    }
+
+    .banner{
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(245,158,11,.25);
+      background: rgba(245,158,11,.10);
+      color: #7c4a00;
+      font-weight: 650;
+      font-size: 13px;
+      display:none;
+    }
+    .banner.show{ display:block; }
+
+    .drawer{
+      margin-top: 10px;
+      border: 1px solid rgba(229,231,235,.9);
+      border-radius: 16px;
+      background: rgba(255,255,255,.92);
+      overflow:hidden;
+      display:none;
+    }
+    .drawer.show{ display:block; }
+    .drawer .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      padding: 12px;
+      border-top: 1px solid rgba(229,231,235,.8);
+    }
+    .drawer .row:first-child{ border-top: 0; }
+    .drawer .row .field{ min-width: 150px; }
+    .drawer .row .hint{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+      flex: 1 1 240px;
+      padding-bottom: 6px;
+    }
+
+    .list{
+      margin-top: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+
+    .card{
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(229,231,235,.85);
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow:hidden;
+    }
+
+    .card-head{
+      padding: 14px 14px 10px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      border-bottom: 1px solid rgba(229,231,235,.75);
+      background: linear-gradient(to right, rgba(81,126,164,.06), rgba(111,38,61,.05));
+    }
+
+    .card-head .left{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      flex: 1 1 520px;
+      min-width: 260px;
+    }
+
+    .mini{ min-width: 160px; }
+    .criterion-name{ min-width: 260px; flex: 1 1 340px; }
+
+    .weight-wrap{
+      display:flex;
+      gap:8px;
+      align-items:flex-end;
+      min-width: 220px;
+    }
+    .weight-wrap .unit{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      padding-bottom: 10px;
+      white-space:nowrap;
+    }
+
+    .card-head .right{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+      flex: 0 1 auto;
+    }
+
+    .iconbtn{
+      border-radius: 12px;
+      padding: 10px 10px;
+      font-size: 12px;
+    }
+
+    .card-body{
+      padding: 14px;
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 920px){
+      .card-body{ grid-template-columns: 1fr; }
+    }
+
+    .levels{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+    }
+    @media (max-width: 920px){
+      .levels{ grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .level{
+      border:1px solid rgba(229,231,235,.9);
+      border-radius: 16px;
+      background:#fff;
+      overflow:hidden;
+      min-height: 132px;
+      display:flex;
+      flex-direction:column;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .06s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .level:hover{
+      border-color: rgba(111,38,61,.22);
+      box-shadow: 0 8px 18px rgba(17,24,39,.06);
+      transform: translateY(-1px);
+    }
+
+    .level .cap{
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .25px;
+      padding: 10px 10px 8px;
+      border-bottom:1px solid rgba(229,231,235,.85);
+      color: var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      pointer-events:none;
+    }
+
+    .level .cap span{
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 11px;
+      pointer-events:none;
+    }
+
+    .level textarea{
+      border:0;
+      outline:none;
+      padding: 10px;
+      resize: none;
+      flex:1;
+      font-size: 13px;
+      line-height: 1.35;
+      background: transparent;
+      color: var(--ink);
+      width: 100%;
+      min-height: 110px;
+      font-family: var(--desc-font);
+      pointer-events:auto;
+      user-select:text;
+    }
+
+    .level.goodpick{ background: var(--ok); border-color: var(--ok-b); }
+    .level.okpick{ background: var(--g); border-color: var(--g-b); }
+    .level.midpick{ background: var(--f); border-color: var(--f-b); }
+    .level.lowpick{ background: var(--d); border-color: var(--d-b); }
+
+    .score-panel{
+      border:1px solid rgba(229,231,235,.9);
+      border-radius: 18px;
+      background:#fff;
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .score-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .maxlabel{
+      font-size: 12px;
+      font-weight: 750;
+      color: var(--muted);
+    }
+
+    .range{
+      width:100%;
+      height: 12px;
+      border-radius: 999px;
+      appearance:none;
+      outline:none;
+      background: linear-gradient(to right, rgba(239,68,68,.55), rgba(245,158,11,.55), rgba(34,197,94,.55));
+      cursor: pointer;
+      touch-action: none;
+    }
+    .range::-webkit-slider-thumb{
+      appearance:none;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--burgundy);
+      cursor:pointer;
+      box-shadow: 0 8px 18px rgba(17,24,39,.18);
+      border: 2px solid rgba(255,255,255,.9);
+    }
+    .range::-moz-range-thumb{
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--burgundy);
+      cursor:pointer;
+      box-shadow: 0 8px 18px rgba(17,24,39,.18);
+      border: 2px solid rgba(255,255,255,.9);
+    }
+
+    .score-input{
+      width: 160px;
+      min-width: 160px;
+    }
+
+    .score-help{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+      margin-top: -6px;
+    }
+
+    .noteswrap{
+      border-top: 1px dashed rgba(229,231,235,.9);
+      padding-top: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .noteshead{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .noteshead .lbl{
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .collapse{
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 10px;
+      border-radius: 999px;
+    }
+
+    textarea.notes{
+      width:100%;
+      min-height: 90px;
+      border:1px solid rgba(229,231,235,.9);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.35;
+      resize: none;
+      outline:none;
+      background: rgba(249,250,251,.8);
+      font-family: var(--desc-font);
+    }
+
+    .foot-actions{
+      margin-top: 18px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .muted{
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    /* Modals */
+    .modal{
+      position: fixed;
+      inset: 0;
+      display:none;
+      background: rgba(0,0,0,.45);
+      z-index: 50;
+      padding: 18px;
+      overflow:auto;
+    }
+    .modal.show{ display:block; }
+    .modal-card{
+      max-width: 860px;
+      margin: 40px auto;
+      background:#fff;
+      border-radius: 18px;
+      border:1px solid rgba(229,231,235,.9);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal-head{
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom: 1px solid rgba(229,231,235,.9);
+      background: linear-gradient(to right, rgba(81,126,164,.06), rgba(111,38,61,.05));
+      font-weight: 900;
+      color: var(--burgundy);
+    }
+    .modal-body{
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .modal-body textarea{
+      width:100%;
+      min-height: 220px;
+      border:1px solid rgba(229,231,235,.95);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.35;
+      outline:none;
+      background: rgba(249,250,251,.9);
+      resize: vertical;
+      font-family: var(--desc-font);
+    }
+    .modal-actions{
+      padding: 12px 16px 16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: rgba(17,24,39,.92);
+      color:#fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 750;
+      font-size: 13px;
+      box-shadow: var(--shadow);
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 60;
+      pointer-events:none;
+      max-width: 360px;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media print{
+      .header, .foot-actions, .btn, .toggle-row, .banner, .modal, .toast{ display:none !important; }
+      body{ background:#fff; }
+      .card{ box-shadow:none; }
+    }
+
+    /***********************
+     * PRINT VIEW (PDF Export)
+     ***********************/
+    .print-root{
+      width: 860px;
+      background:#fff;
+      color:#111827;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 18px;
+    }
+
+    .print-header{
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      background: linear-gradient(to right, rgba(81,126,164,.08), rgba(111,38,61,.06));
+      margin-bottom: 12px;
+    }
+
+    .print-title{
+      font-size: 18px;
+      font-weight: 900;
+      color: #6f263d;
+      margin: 0 0 6px 0;
+    }
+    .print-sub{
+      font-size: 12px;
+      color:#374151;
+      margin: 0;
+      font-weight: 650;
+    }
+
+    .print-card{
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow:hidden;
+      margin: 0 0 10px 0;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .print-card-head{
+      padding: 10px 12px;
+      background: rgba(249,250,251,.95);
+      border-bottom: 1px solid #eef2f7;
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      align-items:baseline;
+      flex-wrap:wrap;
+    }
+
+    .print-card-name{
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .print-card-meta{
+      font-size: 11px;
+      color:#374151;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .print-scoreline{
+      width:100%;
+      font-size: 11px;
+      color:#111827;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .print-levels{
+      padding: 10px 12px 12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 10px;
+    }
+
+    .print-level{
+      border: 1px solid #eef2f7;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: #fff;
+    }
+
+    .print-level.sel-excellent{ background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.30); }
+    .print-level.sel-good{ background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.26); }
+    .print-level.sel-fair{ background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.30); }
+    .print-level.sel-developing{ background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.30); }
+
+    .print-level h4{
+      margin: 0 0 4px 0;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      color:#111827;
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      align-items:baseline;
+    }
+    .print-level h4 span{
+      font-weight: 800;
+      color:#374151;
+      font-size: 10.5px;
+      white-space:nowrap;
+    }
+    .print-level p{
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.28;
+      color:#111827;
+      white-space: pre-wrap;
+    }
+
+    .print-notes{
+      padding: 10px 12px 12px;
+      font-size: 12.5px;
+      line-height: 1.35;
+      color:#111827;
+      background: var(--pdf-note-bg);
+      border-top: 1px solid var(--pdf-note-bd);
+      white-space: pre-wrap;
+    }
+    .print-notes b{
+      font-weight: 900;
+      color: var(--burgundy);
+    }
+  </style>
 </head>
+
 <body>
-    <div class="rubric-container" id="rubricContainer">
-        <div class="rubric-header">
-            <div contenteditable="true" class="rubric-title">Customizable Rubric Generator</div>
-            <div contenteditable="true" class="student-name">Student Name</div>
+  <div class="wrap">
+
+    <div class="header" id="header">
+      <!-- COLLAPSED HEADER -->
+      <div class="header-min" id="headerMin">
+        <div class="left">
+          <div class="mini-edit" title="Edit student name">
+            Student:
+            <input id="minStudentInput" type="text" value="Student Name" />
+          </div>
+
+          <div class="score-pill" style="margin-left:0;">
+            <small>Overall</small>
+            <span id="minOverall">0.00</span>
+            <small id="minOutOf">/ 100</small>
+          </div>
         </div>
-        <div class="rubric-options">
-            <label for="minGradeToggle">Set Minimum Grade to 50%: </label>
-            <input type="checkbox" id="minGradeToggle" onchange="toggleMinGrade(this)" checked>
-            <br><br>
-            <label for="weightTypeGlobal">Weight Type: </label>
-            <label><input type="radio" name="weightTypeGlobal" value="percentage" checked onclick="updateGlobalWeightType(this)"> Percentage</label>
-            <label><input type="radio" name="weightTypeGlobal" value="points" onclick="updateGlobalWeightType(this)"> Points</label>
+        <div class="right">
+          <!-- NEW: Export PDF in collapsed header -->
+          <button class="btn ghost" id="minPdfBtn">Export PDF</button>
+          <button class="btn danger" id="minNewStudentBtn">New student</button>
+          <button class="btn ghost" id="expandHeaderBtn">Expand header</button>
         </div>
-        <div class="score-container">
-            <label for="totalPoints">Total Points: </label>
-            <input type="number" id="totalPoints" class="score-input" value="100" min="1">
-            <button class="add-btn" onclick="calculateScores()">Set Scores</button>
-            <button class="reset-btn" onclick="resetRubric()">Reset</button>
-            <button class="save-btn" onclick="saveRubric()">Save Rubric</button>
-            <button class="load-btn" onclick="loadRubric()">Load Rubric</button>
-            <button class="export-json-btn" onclick="openExportModal()">Export to JSON</button>
-            <button class="import-json-btn" onclick="openImportModal()">Import from JSON</button>
-            <div class="total-score">Overall Grade: <span id="overallGrade">0</span></div>
+      </div>
+
+      <!-- FULL HEADER -->
+      <div class="header-top">
+        <div class="title-block">
+          <div class="title-row">
+            <h1 class="title">
+              Rubric Generator
+              <span class="chip" id="modeChip">Percent weights</span>
+            </h1>
+          </div>
+          <div class="meta">
+            <div class="field" style="min-width: 280px; flex: 1 1 320px;">
+              <label>Rubric title</label>
+              <input id="rubricTitle" type="text" value="Customizable Rubric" />
+            </div>
+            <div class="field" style="min-width: 220px;">
+              <label>Student name</label>
+              <input id="studentName" type="text" value="Student Name" />
+            </div>
+            <div class="field" style="min-width: 170px;">
+              <label>Total points</label>
+              <input id="totalPoints" type="number" min="1" value="100" />
+            </div>
+          </div>
         </div>
-        <table class="rubric-table" id="rubricTable">
-            <thead>
-                <tr>
-                    <th>Criteria</th>
-                    <th>Weight</th>
-                    <th>Excellent</th>
-                    <th>Good</th>
-                    <th>Fair</th>
-                    <th>Developing</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td contenteditable="true">Criterion 1</td>
-                    <td contenteditable="true" class="weight-input">25</td>
-                    <td contenteditable="true" onclick="selectText(this)">Excellent description</td>
-                    <td contenteditable="true" onclick="selectText(this)">Good description</td>
-                    <td contenteditable="true" onclick="selectText(this)">Fair description</td>
-                    <td contenteditable="true" onclick="selectText(this)">Developing description</td>
-                    <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
-                </tr>
-                <tr>
-                    <td colspan="7">
-                        <div class="slider-container">
-                            <input type="range" min="0" max="25" value="25" step="0.25" class="slider" oninput="updateScore(this)">
-                            <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">25.00</div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="7"><textarea class="notes" placeholder="Enter notes..."></textarea></td>
-                </tr>
-            </tbody>
-        </table>
-        <button class="add-btn" onclick="addRow()">Add Criterion</button>
-        <button class="copy-btn" onclick="copyToClipboard()">Copy Rubric</button>
-        <button class="export-btn" onclick="exportScreenshot()">Export Screenshot</button>
-        <button class="export-pdf-btn" onclick="exportToPDF()">Export to PDF</button>
+
+        <div class="controls">
+          <button class="btn secondary" id="settingsBtn">⚙︎ Settings</button>
+
+          <button class="btn" id="addBtn">Add criterion</button>
+          <button class="btn secondary" id="normalizeBtn">Normalize weights</button>
+          <button class="btn ghost" id="copyBtn">Copy (text)</button>
+          <button class="btn ghost" id="pdfBtn">Export PDF</button>
+          <button class="btn ghost" id="shotBtn">Screenshot</button>
+          <button class="btn secondary" id="exportBtn">Export JSON</button>
+          <button class="btn secondary" id="importBtn">Import JSON</button>
+          <button class="btn danger" id="newStudentBtn">New student</button>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle">
+          <input id="min50" type="checkbox" checked />
+          <label for="min50">Minimum grade floor = 50% per criterion</label>
+        </div>
+
+        <div class="toggle">
+          <label style="margin-right:6px;">Weight mode</label>
+          <div class="seg">
+            <button id="modePercent" class="active" type="button">Percent</button>
+            <button id="modePoints" type="button">Points</button>
+          </div>
+        </div>
+
+        <div class="overall-block">
+          <button class="btn ghost" id="collapseHeaderBtn" style="padding:8px 10px; font-size:12px;">Collapse header</button>
+          <div class="score-pill">
+            <small>Overall</small>
+            <span id="overall">0.00</span>
+            <small id="overallOutOf">/ 100</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer" id="settingsDrawer" aria-hidden="true">
+        <div class="row">
+          <div class="hint">
+            Cutoffs apply to this rubric: Excellent ≥ E, Good ≥ G, Fair ≥ F, Developing &lt; F. Clicking a level sets the score to the <b>top</b> of that band.
+          </div>
+          <button class="btn ghost" id="resetCutoffsBtn">Reset cutoffs</button>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Excellent cutoff (E)</label>
+            <input id="cutE" type="number" min="0" max="100" step="0.5" value="90" />
+          </div>
+          <div class="field">
+            <label>Good cutoff (G)</label>
+            <input id="cutG" type="number" min="0" max="100" step="0.5" value="80" />
+          </div>
+          <div class="field">
+            <label>Fair cutoff (F)</label>
+            <input id="cutF" type="number" min="0" max="100" step="0.5" value="66" />
+          </div>
+          <div class="field" style="min-width: 220px;">
+            <label>Slider smoothness</label>
+            <input id="smoothStep" type="number" min="0.01" step="0.01" value="0.1" />
+          </div>
+        </div>
+      </div>
+
+      <div class="banner" id="banner"></div>
     </div>
 
-    <!-- Export JSON Modal -->
-    <div id="exportModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeExportModal()">&times;</span>
-            <div class="modal-header">Export Rubric to JSON</div>
-            <div class="modal-body">
-                <button class="export-btn" onclick="exportToJSONFile()">Export JSON File</button>
-                <button class="export-btn" onclick="generateJSONText()">Generate JSON Text</button>
-                <textarea id="exportJsonText" class="json-textarea" readonly></textarea>
-                <button class="export-btn" onclick="copyJSONToClipboard()">Copy JSON to Clipboard</button>
-            </div>
-            <div class="modal-footer">
-                <button class="close-btn" onclick="closeExportModal()">Close</button>
-            </div>
-        </div>
+    <div class="list" id="criteriaList"></div>
+
+    <div class="foot-actions">
+      <div class="muted">
+        Tip: In “Points earned,” you can type <b>12.5</b> or <b>85%</b>. Press <b>Enter</b> to commit.
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+        <button class="btn secondary" id="saveBtn">Save to browser</button>
+        <button class="btn secondary" id="loadBtn">Load from browser</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Import JSON Modal -->
-    <div id="importModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeImportModal()">&times;</span>
-            <div class="modal-header">Import Rubric from JSON</div>
-            <div class="modal-body">
-                <button class="import-btn" onclick="document.getElementById('importJsonInput').click()">Import JSON File</button>
-                <input type="file" id="importJsonInput" class="hidden" accept=".json" onchange="importFromJSONFile(event)">
-                <textarea id="importJsonText" class="json-textarea" placeholder="Paste JSON text here..."></textarea>
-                <button class="import-btn" onclick="importFromJSONText()">Import from Text</button>
-            </div>
-            <div class="modal-footer">
-                <button class="close-btn" onclick="closeImportModal()">Close</button>
-            </div>
+  <!-- Export Modal -->
+  <div class="modal" id="exportModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>Export JSON</div>
+        <button class="btn ghost" id="closeExport">Close</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="downloadJson">Download JSON file</button>
+          <button class="btn secondary" id="copyJson">Copy JSON</button>
         </div>
+        <textarea id="exportText" readonly></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" id="closeExport2">Close</button>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script>
-        function addRow() {
-            const table = document.getElementById('rubricTable').getElementsByTagName('tbody')[0];
-            const totalPoints = document.getElementById('totalPoints').value;
-            const newRow = table.insertRow();
-            const criteriaCell = newRow.insertCell(0);
-            const weightCell = newRow.insertCell(1);
-            const excellentCell = newRow.insertCell(2);
-            const goodCell = newRow.insertCell(3);
-            const fairCell = newRow.insertCell(4);
-            const developingCell = newRow.insertCell(5);
-            const actionCell = newRow.insertCell(6);
+  <!-- Import Modal -->
+  <div class="modal" id="importModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>Import JSON</div>
+        <button class="btn ghost" id="closeImport">Close</button>
+      </div>
+      <div class="modal-body">
+        <input type="file" id="importFile" accept=".json" style="display:none;" />
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="pickFile">Choose JSON file</button>
+          <button class="btn secondary" id="importFromText">Import pasted JSON</button>
+        </div>
+        <textarea id="importText" placeholder="Paste JSON here..."></textarea>
+        <div class="muted">
+          Works with both the new format (<b>weightPercent + levels</b>) and your older format (<b>weight + descriptions[]</b>).
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" id="closeImport2">Close</button>
+      </div>
+    </div>
+  </div>
 
-            criteriaCell.contentEditable = "true";
-            weightCell.contentEditable = "true";
-            weightCell.className = "weight-input";
-            weightCell.innerHTML = `25`;
-            excellentCell.contentEditable = "true";
-            excellentCell.innerText = "Excellent description";
-            excellentCell.setAttribute("onclick", "selectText(this)");
-            goodCell.contentEditable = "true";
-            goodCell.innerText = "Good description";
-            goodCell.setAttribute("onclick", "selectText(this)");
-            fairCell.contentEditable = "true";
-            fairCell.innerText = "Fair description";
-            fairCell.setAttribute("onclick", "selectText(this)");
-            developingCell.contentEditable = "true";
-            developingCell.innerText = "Developing description";
-            developingCell.setAttribute("onclick", "selectText(this)");
-            const removeButton = document.createElement('button');
-            removeButton.className = 'remove-btn';
-            removeButton.innerText = 'Remove';
-            removeButton.setAttribute('onclick', 'removeRow(this)');
-            actionCell.appendChild(removeButton);
+  <div class="toast" id="toast"></div>
 
-            const sliderRow = table.insertRow();
-            const sliderCell = sliderRow.insertCell(0);
-            sliderCell.colSpan = 7;
-            sliderCell.innerHTML = `
-                <div class="slider-container">
-                    <input type="range" min="0" max="${totalPoints * 0.25}" value="${totalPoints * 0.25}" step="0.25" class="slider" oninput="updateScore(this)">
-                    <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">${(totalPoints * 0.25).toFixed(2)}</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+  <script>
+    /***********************
+     * State
+     ***********************/
+    const state = {
+      title: "Customizable Rubric",
+      studentName: "Student Name",
+      totalPoints: 100,
+      weightMode: "percent",
+      min50: true,
+      cutoffs: { E: 90, G: 80, F: 66 },
+      sliderStep: 0.1,
+      criteria: [
+        makeCriterion("Criterion 1", 25),
+        makeCriterion("Criterion 2", 25),
+        makeCriterion("Criterion 3", 25),
+        makeCriterion("Criterion 4", 25),
+      ],
+    };
+
+    function makeCriterion(name, weightPercent){
+      return {
+        id: cryptoRandomId(),
+        name,
+        weightPercent,
+        levels: {
+          excellent: "Excellent description",
+          good: "Good description",
+          fair: "Fair description",
+          developing: "Developing description",
+        },
+        score: null,
+        notes: "",
+        notesOpen: true,
+      };
+    }
+
+    function cryptoRandomId(){
+      if (window.crypto && crypto.getRandomValues){
+        const a = new Uint32Array(2);
+        crypto.getRandomValues(a);
+        return a[0].toString(16) + a[1].toString(16);
+      }
+      return Math.random().toString(16).slice(2);
+    }
+
+    /***********************
+     * Helpers
+     ***********************/
+    const $ = (sel) => document.querySelector(sel);
+
+    function clamp(n, lo, hi){
+      n = Number.isFinite(n) ? n : lo;
+      return Math.min(hi, Math.max(lo, n));
+    }
+
+    function toFixed2(n){
+      return (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+    }
+
+    function showToast(msg){
+      const t = $("#toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(showToast._tm);
+      showToast._tm = setTimeout(() => t.classList.remove("show"), 1800);
+    }
+
+    function setBanner(msg){
+      const b = $("#banner");
+      if (!msg){
+        b.textContent = "";
+        b.classList.remove("show");
+        return;
+      }
+      b.textContent = msg;
+      b.classList.add("show");
+    }
+
+    function totalWeightPercent(){
+      return state.criteria.reduce((sum, c) => sum + (parseFloat(c.weightPercent) || 0), 0);
+    }
+
+    function criterionMaxPoints(c){
+      const total = parseFloat(state.totalPoints) || 0;
+      const w = parseFloat(c.weightPercent) || 0;
+      return (total * w) / 100;
+    }
+
+    function criterionMinPoints(c){
+      const max = criterionMaxPoints(c);
+      return state.min50 ? max * 0.5 : 0;
+    }
+
+    function ensureScoresClamped(){
+      state.criteria.forEach(c => {
+        const max = criterionMaxPoints(c);
+        const min = criterionMinPoints(c);
+        if (c.score == null || Number.isNaN(parseFloat(c.score))){
+          c.score = clamp(max, min, max);
+        } else {
+          c.score = clamp(parseFloat(c.score), min, max);
+        }
+      });
+    }
+
+    function recomputeOverall(){
+      let sum = 0;
+      state.criteria.forEach(c => sum += (parseFloat(c.score) || 0));
+      $("#overall").textContent = toFixed2(sum);
+      $("#overallOutOf").textContent = "/ " + (parseFloat(state.totalPoints) || 0);
+
+      $("#minOverall").textContent = $("#overall").textContent;
+      $("#minOutOf").textContent = $("#overallOutOf").textContent;
+
+      const minInput = $("#minStudentInput");
+      if (minInput && minInput.value !== state.studentName) minInput.value = state.studentName;
+    }
+
+    function weightDisplayValue(c){
+      const total = parseFloat(state.totalPoints) || 0;
+      if (state.weightMode === "percent"){
+        return toFixed2(parseFloat(c.weightPercent) || 0);
+      }
+      return toFixed2((total * (parseFloat(c.weightPercent) || 0)) / 100);
+    }
+
+    function parseWeightInputToPercent(inputValue){
+      const total = parseFloat(state.totalPoints) || 0;
+      const v = parseFloat(inputValue);
+      if (!Number.isFinite(v)) return null;
+
+      if (state.weightMode === "percent"){
+        return clamp(v, 0, 100);
+      } else {
+        if (total <= 0) return 0;
+        return clamp((v / total) * 100, 0, 100);
+      }
+    }
+
+    function normalizeCutoffs(){
+      let E = clamp(parseFloat(state.cutoffs.E), 0, 100);
+      let G = clamp(parseFloat(state.cutoffs.G), 0, 100);
+      let F = clamp(parseFloat(state.cutoffs.F), 0, 100);
+
+      const arr = [E, G, F].sort((a,b)=>b-a);
+      E = arr[0]; G = arr[1]; F = arr[2];
+
+      state.cutoffs = { E, G, F };
+      $("#cutE").value = E;
+      $("#cutG").value = G;
+      $("#cutF").value = F;
+    }
+
+    function pickedKeyFromPercent(pct){
+      const { E, G, F } = state.cutoffs;
+      if (pct >= E) return "excellent";
+      if (pct >= G) return "good";
+      if (pct >= F) return "fair";
+      return "developing";
+    }
+
+    function bandTopPercent(key){
+      const { E, G, F } = state.cutoffs;
+      const eps = 0.0001;
+      if (key === "excellent") return 100;
+      if (key === "good") return Math.max(0, E - eps);
+      if (key === "fair") return Math.max(0, G - eps);
+      return Math.max(0, F - eps);
+    }
+
+    function autoGrow(textarea){
+      textarea.style.height = "auto";
+      textarea.style.height = (textarea.scrollHeight + 2) + "px";
+    }
+
+    function structuredCloneSafe(obj){
+      try { return structuredClone(obj); }
+      catch { return JSON.parse(JSON.stringify(obj)); }
+    }
+
+    function escapeHtml(s){
+      return (s ?? "").toString()
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){
+      return escapeHtml(s).replaceAll("\n"," ");
+    }
+
+    function safeFilePretty(s){
+      const raw = (s || "").toString().trim();
+      const cleaned = raw.replace(/[\\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+      return cleaned.length ? cleaned : "Rubric";
+    }
+
+    function parseScoreEntryToPoints(text, maxPoints){
+      const raw = (text || "").toString().trim();
+      if (!raw) return null;
+
+      if (raw.includes("%")){
+        const p = parseFloat(raw.replace("%","").trim());
+        if (!Number.isFinite(p)) return null;
+        const pct = clamp(p, 0, 100);
+        return (pct / 100) * maxPoints;
+      }
+
+      const pts = parseFloat(raw);
+      if (!Number.isFinite(pts)) return null;
+      return pts;
+    }
+
+    function pickClassForKey(key){
+      if (key === "excellent") return "goodpick";
+      if (key === "good") return "okpick";
+      if (key === "fair") return "midpick";
+      return "lowpick";
+    }
+
+    function selectedLevelClass(key){
+      if (key === "excellent") return "sel-excellent";
+      if (key === "good") return "sel-good";
+      if (key === "fair") return "sel-fair";
+      return "sel-developing";
+    }
+
+    /***********************
+     * FAST CARD UPDATE (no full re-render)
+     ***********************/
+    function updateCardUIById(id){
+      const c = state.criteria.find(x => x.id === id);
+      const card = document.querySelector(`.card[data-id="${CSS.escape(id)}"]`);
+      if (!c || !card) return;
+
+      const max = criterionMaxPoints(c);
+      const min = criterionMinPoints(c);
+      c.score = clamp(parseFloat(c.score) || 0, min, max);
+
+      const pct = max > 0 ? (c.score / max) * 100 : 0;
+      const pickKey = pickedKeyFromPercent(pct);
+
+      const maxPointsInput = card.querySelector('[data-role="maxPoints"]');
+      if (maxPointsInput) maxPointsInput.value = toFixed2(max);
+
+      const slider = card.querySelector('input.range[data-action="slider"]');
+      if (slider){
+        slider.min = String(min);
+        slider.max = String(max);
+        slider.step = String(state.sliderStep);
+        slider.value = String(c.score);
+      }
+
+      const scoreEntry = card.querySelector('input[data-action="scoreEntry"]');
+      if (scoreEntry){
+        if (document.activeElement !== scoreEntry){
+          scoreEntry.value = toFixed2(c.score);
+        }
+      }
+
+      const pctDisplay = card.querySelector('input[data-role="pctDisplay"]');
+      if (pctDisplay){
+        pctDisplay.value = `${toFixed2(pct)}%`;
+      }
+
+      const minMaxLine = card.querySelector('[data-role="minMaxLine"]');
+      if (minMaxLine){
+        minMaxLine.textContent = `Min: ${toFixed2(min)} · Max: ${toFixed2(max)}`;
+      }
+
+      const levelEls = card.querySelectorAll('.level[data-action="pickLevel"]');
+      levelEls.forEach(el => {
+        el.classList.remove("goodpick","okpick","midpick","lowpick");
+        const key = el.dataset.level;
+        if (key === pickKey){
+          el.classList.add(pickClassForKey(key));
+        }
+      });
+
+      recomputeOverall();
+    }
+
+    /***********************
+     * Rendering (full)
+     ***********************/
+    function render(){
+      $("#rubricTitle").value = state.title;
+      $("#studentName").value = state.studentName;
+      $("#minStudentInput").value = state.studentName;
+      $("#totalPoints").value = state.totalPoints;
+
+      $("#modePercent").classList.toggle("active", state.weightMode === "percent");
+      $("#modePoints").classList.toggle("active", state.weightMode === "points");
+      $("#modeChip").textContent = state.weightMode === "percent" ? "Percent weights" : "Point weights";
+
+      $("#min50").checked = state.min50;
+
+      $("#cutE").value = state.cutoffs.E;
+      $("#cutG").value = state.cutoffs.G;
+      $("#cutF").value = state.cutoffs.F;
+      $("#smoothStep").value = state.sliderStep;
+
+      const wsum = totalWeightPercent();
+      if (Math.abs(wsum - 100) > 0.01){
+        setBanner(`Weights currently sum to ${toFixed2(wsum)}%. You can Normalize weights to clean that up.`);
+      } else {
+        setBanner("");
+      }
+
+      ensureScoresClamped();
+
+      const list = $("#criteriaList");
+      list.innerHTML = "";
+
+      state.criteria.forEach((c, idx) => {
+        const max = criterionMaxPoints(c);
+        const min = criterionMinPoints(c);
+        const score = clamp(parseFloat(c.score), min, max);
+        const pct = max > 0 ? (score / max) * 100 : 0;
+        const pickKey = pickedKeyFromPercent(pct);
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.id = c.id;
+
+        card.innerHTML = `
+          <div class="card-head">
+            <div class="left">
+              <div class="field criterion-name">
+                <label>Criterion</label>
+                <input type="text" value="${escapeAttr(c.name)}" data-action="name" />
+              </div>
+
+              <div class="field mini">
+                <label>Weight</label>
+                <div class="weight-wrap">
+                  <input type="number" step="0.25" value="${escapeAttr(weightDisplayValue(c))}" data-action="weight" />
+                  <div class="unit">${state.weightMode === "percent" ? "%" : "pts"}</div>
                 </div>
-            `;
+              </div>
 
-            const notesRow = table.insertRow();
-            const notesCell = notesRow.insertCell(0);
-            notesCell.colSpan = 7;
-            notesCell.innerHTML = '<textarea class="notes" placeholder="Enter notes..."></textarea>';
+              <div class="field mini">
+                <label>Max points</label>
+                <input data-role="maxPoints" type="text" value="${toFixed2(max)}" disabled />
+              </div>
+            </div>
+
+            <div class="right">
+              <button class="btn secondary iconbtn" data-action="dup">Duplicate</button>
+              <button class="btn secondary iconbtn" data-action="up" ${idx === 0 ? "disabled" : ""}>Up</button>
+              <button class="btn secondary iconbtn" data-action="down" ${idx === state.criteria.length - 1 ? "disabled" : ""}>Down</button>
+              <button class="btn danger iconbtn" data-action="remove">Remove</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="levels">
+              ${levelBlock("Excellent", "excellent", c.levels.excellent, pickKey === "excellent")}
+              ${levelBlock("Good", "good", c.levels.good, pickKey === "good")}
+              ${levelBlock("Fair", "fair", c.levels.fair, pickKey === "fair")}
+              ${levelBlock("Developing", "developing", c.levels.developing, pickKey === "developing")}
+            </div>
+
+            <div class="score-panel">
+              <div class="score-row" style="justify-content:space-between;">
+                <div class="maxlabel">Score for this criterion</div>
+                <div class="maxlabel" data-role="minMaxLine">Min: ${toFixed2(min)} · Max: ${toFixed2(max)}</div>
+              </div>
+
+              <input class="range" type="range"
+                min="${min}"
+                max="${max}"
+                value="${score}"
+                step="${state.sliderStep}"
+                data-action="slider"
+              />
+
+              <div class="score-row">
+                <div class="field" style="margin:0; min-width: 170px; flex: 1;">
+                  <label>Points earned (or %)</label>
+                  <input class="score-input" type="text"
+                    value="${escapeAttr(toFixed2(score))}"
+                    data-action="scoreEntry"
+                    placeholder="e.g., 12.5 or 85%"
+                  />
+                  <div class="score-help">Type points (12.5) or percent (85%). Press Enter to commit.</div>
+                </div>
+                <div class="field" style="margin:0; min-width: 170px;">
+                  <label>Percent (this criterion)</label>
+                  <input data-role="pctDisplay" type="text" value="${toFixed2(pct)}%" disabled />
+                </div>
+              </div>
+
+              <div class="noteswrap">
+                <div class="noteshead">
+                  <div class="lbl">Notes</div>
+                  <button class="btn ghost collapse" data-action="toggleNotes">${c.notesOpen ? "Collapse" : "Expand"}</button>
+                </div>
+                <div data-notesbox style="${c.notesOpen ? "" : "display:none;"}">
+                  <textarea class="notes" data-action="notes" placeholder="Type notes here (multi-line).">${escapeHtml(c.notes)}</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        list.appendChild(card);
+        card.querySelectorAll("textarea").forEach(t => autoGrow(t));
+      });
+
+      recomputeOverall();
+    }
+
+    function levelBlock(label, key, text, picked){
+      const pickClass = picked ? pickClassForKey(key) : "";
+      return `
+        <div class="level ${pickClass}" data-level="${key}" data-action="pickLevel">
+          <div class="cap">${label} <span>${key}</span></div>
+          <textarea data-action="level:${key}" placeholder="${label} descriptor...">${escapeHtml(text)}</textarea>
+        </div>
+      `;
+    }
+
+    /***********************
+     * Events (delegation)
+     ***********************/
+    $("#criteriaList").addEventListener("click", (e) => {
+      const lvl = e.target.closest(".level[data-action='pickLevel']");
+      if (lvl && !e.target.matches("textarea")) {
+        const card = e.target.closest(".card");
+        const id = card?.dataset?.id;
+        const c = state.criteria.find(x => x.id === id);
+        if (!c) return;
+
+        const key = lvl.dataset.level;
+        const max = criterionMaxPoints(c);
+        const min = criterionMinPoints(c);
+        const pctTop = bandTopPercent(key);
+        const pts = (pctTop / 100) * max;
+        c.score = clamp(pts, min, max);
+
+        updateCardUIById(id);
+        showToast(`Set to ${key} (top of band).`);
+        return;
+      }
+
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+
+      const card = e.target.closest(".card");
+      const id = card?.dataset?.id;
+      const cIndex = state.criteria.findIndex(x => x.id === id);
+      if (cIndex < 0) return;
+
+      const action = btn.dataset.action;
+
+      if (action === "remove"){
+        state.criteria.splice(cIndex, 1);
+        render();
+        showToast("Criterion removed.");
+        return;
+      }
+
+      if (action === "dup"){
+        const copy = structuredCloneSafe(state.criteria[cIndex]);
+        copy.id = cryptoRandomId();
+        copy.name = copy.name + " (copy)";
+        state.criteria.splice(cIndex + 1, 0, copy);
+        render();
+        showToast("Criterion duplicated.");
+        return;
+      }
+
+      if (action === "up" && cIndex > 0){
+        const tmp = state.criteria[cIndex - 1];
+        state.criteria[cIndex - 1] = state.criteria[cIndex];
+        state.criteria[cIndex] = tmp;
+        render();
+        return;
+      }
+
+      if (action === "down" && cIndex < state.criteria.length - 1){
+        const tmp = state.criteria[cIndex + 1];
+        state.criteria[cIndex + 1] = state.criteria[cIndex];
+        state.criteria[cIndex] = tmp;
+        render();
+        return;
+      }
+
+      if (action === "toggleNotes"){
+        state.criteria[cIndex].notesOpen = !state.criteria[cIndex].notesOpen;
+        render();
+        return;
+      }
+    });
+
+    $("#criteriaList").addEventListener("input", (e) => {
+      const el = e.target;
+      const card = el.closest(".card");
+      const id = card?.dataset?.id;
+      const c = state.criteria.find(x => x.id === id);
+      if (!c) return;
+
+      const action = el.dataset.action || "";
+
+      if (action === "name"){
+        c.name = el.value;
+        return;
+      }
+
+      if (action === "weight"){
+        const pct = parseWeightInputToPercent(el.value);
+        if (pct == null) return;
+        c.weightPercent = pct;
+        ensureScoresClamped();
+        render();
+        return;
+      }
+
+      if (action.startsWith("level:")){
+        const key = action.split(":")[1];
+        c.levels[key] = el.value;
+        autoGrow(el);
+        return;
+      }
+
+      if (action === "slider"){
+        const max = criterionMaxPoints(c);
+        const min = criterionMinPoints(c);
+        c.score = clamp(parseFloat(el.value), min, max);
+        updateCardUIById(id);
+        return;
+      }
+
+      if (action === "notes"){
+        c.notes = el.value;
+        autoGrow(el);
+        return;
+      }
+    });
+
+    $("#criteriaList").addEventListener("keydown", (e) => {
+      const el = e.target;
+      if (el.dataset.action === "scoreEntry" && e.key === "Enter"){
+        e.preventDefault();
+        commitScoreEntry(el);
+      }
+    });
+
+    $("#criteriaList").addEventListener("focusout", (e) => {
+      const el = e.target;
+      if (el && el.dataset && el.dataset.action === "scoreEntry"){
+        commitScoreEntry(el);
+      }
+    });
+
+    function commitScoreEntry(inputEl){
+      const card = inputEl.closest(".card");
+      const id = card?.dataset?.id;
+      const c = state.criteria.find(x => x.id === id);
+      if (!c) return;
+
+      const max = criterionMaxPoints(c);
+      const min = criterionMinPoints(c);
+
+      const pts = parseScoreEntryToPoints(inputEl.value, max);
+      if (pts == null){
+        inputEl.value = toFixed2(clamp(parseFloat(c.score), min, max));
+        showToast("Invalid score. Try 12.5 or 85%.");
+        return;
+      }
+
+      c.score = clamp(pts, min, max);
+      updateCardUIById(id);
+    }
+
+    /***********************
+     * Header inputs
+     ***********************/
+    $("#rubricTitle").addEventListener("input", (e) => {
+      state.title = e.target.value;
+    });
+
+    $("#studentName").addEventListener("input", (e) => {
+      state.studentName = e.target.value;
+      $("#minStudentInput").value = state.studentName;
+      recomputeOverall();
+    });
+
+    $("#minStudentInput").addEventListener("input", (e) => {
+      state.studentName = e.target.value;
+      $("#studentName").value = state.studentName;
+      recomputeOverall();
+    });
+
+    $("#totalPoints").addEventListener("input", (e) => {
+      state.totalPoints = clamp(parseFloat(e.target.value), 1, 100000);
+      ensureScoresClamped();
+      render();
+    });
+
+    $("#min50").addEventListener("change", (e) => {
+      state.min50 = !!e.target.checked;
+      ensureScoresClamped();
+      render();
+    });
+
+    $("#modePercent").addEventListener("click", () => {
+      state.weightMode = "percent";
+      render();
+    });
+
+    $("#modePoints").addEventListener("click", () => {
+      state.weightMode = "points";
+      render();
+    });
+
+    /***********************
+     * Header collapse
+     ***********************/
+    $("#collapseHeaderBtn").addEventListener("click", () => {
+      $("#header").classList.add("collapsed");
+    });
+    $("#expandHeaderBtn").addEventListener("click", () => {
+      $("#header").classList.remove("collapsed");
+    });
+
+    /***********************
+     * Settings drawer
+     ***********************/
+    $("#settingsBtn").addEventListener("click", () => {
+      const d = $("#settingsDrawer");
+      d.classList.toggle("show");
+      d.setAttribute("aria-hidden", d.classList.contains("show") ? "false" : "true");
+    });
+
+    $("#resetCutoffsBtn").addEventListener("click", () => {
+      state.cutoffs = { E: 90, G: 80, F: 66 };
+      normalizeCutoffs();
+      render();
+      showToast("Cutoffs reset.");
+    });
+
+    $("#cutE").addEventListener("input", () => {
+      state.cutoffs.E = parseFloat($("#cutE").value);
+      normalizeCutoffs();
+      render();
+    });
+    $("#cutG").addEventListener("input", () => {
+      state.cutoffs.G = parseFloat($("#cutG").value);
+      normalizeCutoffs();
+      render();
+    });
+    $("#cutF").addEventListener("input", () => {
+      state.cutoffs.F = parseFloat($("#cutF").value);
+      normalizeCutoffs();
+      render();
+    });
+
+    $("#smoothStep").addEventListener("input", () => {
+      const v = parseFloat($("#smoothStep").value);
+      if (!Number.isFinite(v) || v <= 0) return;
+      state.sliderStep = clamp(v, 0.01, 5);
+      document.querySelectorAll('input.range[data-action="slider"]').forEach(sl => sl.step = String(state.sliderStep));
+    });
+
+    /***********************
+     * Buttons
+     ***********************/
+    $("#addBtn").addEventListener("click", () => {
+      state.criteria.push(makeCriterion(`Criterion ${state.criteria.length + 1}`, 25));
+      render();
+      showToast("Criterion added.");
+    });
+
+    $("#normalizeBtn").addEventListener("click", () => {
+      const sum = totalWeightPercent();
+      if (sum <= 0){
+        showToast("Nothing to normalize.");
+        return;
+      }
+      state.criteria.forEach(c => {
+        c.weightPercent = (c.weightPercent / sum) * 100;
+      });
+      ensureScoresClamped();
+      render();
+      showToast("Weights normalized to 100%.");
+    });
+
+    function doNewStudent(){
+      state.studentName = "Student Name";
+      state.criteria.forEach(c => {
+        const max = criterionMaxPoints(c);
+        const min = criterionMinPoints(c);
+        c.score = clamp(max, min, max);
+        c.notes = "";
+        c.notesOpen = true;
+      });
+      render();
+      showToast("Ready for a new student.");
+    }
+
+    $("#newStudentBtn").addEventListener("click", doNewStudent);
+    $("#minNewStudentBtn").addEventListener("click", doNewStudent);
+
+    /***********************
+     * Save/load + copy/screenshot/pdf + JSON modals
+     ***********************/
+    $("#saveBtn").addEventListener("click", () => {
+      const data = getExportData();
+      localStorage.setItem("rubric_clean_v3", JSON.stringify(data));
+      showToast("Saved to browser.");
+    });
+
+    $("#loadBtn").addEventListener("click", () => {
+      const raw = localStorage.getItem("rubric_clean_v3");
+      if (!raw){
+        showToast("No saved rubric found.");
+        return;
+      }
+      try{
+        const data = JSON.parse(raw);
+        applyImportData(data);
+        showToast("Loaded.");
+      } catch {
+        showToast("Saved data was invalid.");
+      }
+    });
+
+    $("#copyBtn").addEventListener("click", async () => {
+      const txt = rubricAsPlainText();
+      try{
+        await navigator.clipboard.writeText(txt);
+        showToast("Copied (text).");
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = txt;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        showToast("Copied (text).");
+      }
+    });
+
+    $("#shotBtn").addEventListener("click", async () => {
+      await exportScreenshot();
+    });
+
+    $("#pdfBtn").addEventListener("click", async () => {
+      await exportPDF();
+    });
+
+    /* NEW: collapsed header PDF button uses same exporter */
+    $("#minPdfBtn").addEventListener("click", async () => {
+      await exportPDF();
+    });
+
+    $("#exportBtn").addEventListener("click", () => {
+      const data = getExportData();
+      $("#exportText").value = JSON.stringify(data, null, 2);
+      $("#exportModal").classList.add("show");
+    });
+    $("#importBtn").addEventListener("click", () => {
+      $("#importText").value = "";
+      $("#importModal").classList.add("show");
+    });
+    $("#closeExport").addEventListener("click", () => $("#exportModal").classList.remove("show"));
+    $("#closeExport2").addEventListener("click", () => $("#exportModal").classList.remove("show"));
+    $("#closeImport").addEventListener("click", () => $("#importModal").classList.remove("show"));
+    $("#closeImport2").addEventListener("click", () => $("#importModal").classList.remove("show"));
+
+    $("#downloadJson").addEventListener("click", () => {
+      const data = getExportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeFilePretty(state.studentName)} - ${safeFilePretty(state.title)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast("JSON downloaded.");
+    });
+
+    $("#copyJson").addEventListener("click", async () => {
+      const txt = $("#exportText").value || JSON.stringify(getExportData(), null, 2);
+      try{
+        await navigator.clipboard.writeText(txt);
+        showToast("JSON copied.");
+      } catch {
+        showToast("Couldn’t copy JSON.");
+      }
+    });
+
+    $("#pickFile").addEventListener("click", () => $("#importFile").click());
+    $("#importFile").addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const data = JSON.parse(reader.result);
+          applyImportData(data);
+          $("#importModal").classList.remove("show");
+          showToast("Imported.");
+        } catch {
+          showToast("That file wasn’t valid JSON.");
         }
+      };
+      reader.readAsText(file);
+    });
 
-        function removeRow(button) {
-            const row = button.parentElement.parentElement;
-            const sliderRow = row.nextElementSibling;
-            const notesRow = sliderRow.nextElementSibling;
-            row.parentElement.removeChild(row);
-            if (sliderRow && sliderRow.cells.length === 1) {
-                sliderRow.parentElement.removeChild(sliderRow);
-            }
-            if (notesRow && notesRow.cells.length === 1) {
-                notesRow.parentElement.removeChild(notesRow);
-            }
-            updateOverallGrade();
-        }
+    $("#importFromText").addEventListener("click", () => {
+      const txt = $("#importText").value.trim();
+      if (!txt){
+        showToast("Paste JSON first.");
+        return;
+      }
+      try{
+        const data = JSON.parse(txt);
+        applyImportData(data);
+        $("#importModal").classList.remove("show");
+        showToast("Imported.");
+      } catch {
+        showToast("That pasted JSON wasn’t valid.");
+      }
+    });
 
-        function toggleMinGrade(checkbox) {
-            const sliders = document.getElementsByClassName('slider');
-            for (let slider of sliders) {
-                slider.min = checkbox.checked ? slider.max * 0.5 : 0;
-                updateScore(slider);
-            }
-        }
+    /***********************
+     * Export / Import model
+     ***********************/
+    function getExportData(){
+      return {
+        version: "rubric_clean_v3",
+        title: state.title,
+        studentName: state.studentName,
+        totalPoints: state.totalPoints,
+        weightMode: state.weightMode,
+        min50: state.min50,
+        cutoffs: state.cutoffs,
+        sliderStep: state.sliderStep,
+        criteria: state.criteria.map(c => ({
+          id: c.id,
+          name: c.name,
+          weightPercent: c.weightPercent,
+          levels: c.levels,
+          score: c.score,
+          notes: c.notes,
+          notesOpen: c.notesOpen
+        })),
+      };
+    }
 
-        function updateGlobalWeightType(radio) {
-            const weightType = radio.value;
-            const rows = document.querySelectorAll('.rubric-table .weight-input');
-            
-            rows.forEach(row => {
-                const weightValue = parseFloat(row.innerText);
-                const totalPoints = document.getElementById('totalPoints').value;
-                if (weightType === 'points') {
-                    row.innerText = (weightValue * totalPoints / 100).toFixed(2);
-                } else {
-                    row.innerText = (weightValue > 100 ? 100 : weightValue);
-                }
-            });
-        }
+    function normalizeIncomingData(data){
+      if (data && Array.isArray(data.criteria) && data.criteria[0] && ("weightPercent" in data.criteria[0] || "levels" in data.criteria[0])){
+        return data;
+      }
 
-        function calculateScores() {
-            const totalPoints = document.getElementById('totalPoints').value;
-            const table = document.getElementById('rubricTable');
-            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+      const out = {
+        version: "rubric_clean_v3",
+        title: data?.title ?? "Imported Rubric",
+        studentName: data?.studentName ?? "Student Name",
+        totalPoints: Number(data?.totalPoints ?? 100),
+        weightMode: "percent",
+        min50: (data?.min50 == null) ? true : !!data.min50,
+        cutoffs: { E: 90, G: 80, F: 66 },
+        sliderStep: 0.1,
+        criteria: []
+      };
 
-            for (let i = 0; i < rows.length; i += 3) {
-                const weightInput = rows[i].cells[1];
-                const weight = parseFloat(weightInput.innerText);
-                const sliderCell = rows[i + 1].cells[0];
-                const slider = sliderCell.getElementsByTagName('input')[0];
-                slider.max = (totalPoints * weight / 100).toFixed(2);
-                updateScore(slider);
-            }
-            updateOverallGrade();
-        }
-
-        function updateScore(slider) {
-            const input = slider.nextElementSibling;
-            input.innerText = slider.value;
-            highlightCategory(slider);
-            updateOverallGrade();
-            moveCursorToNotes(slider);
-        }
-
-        function handleScoreInput(event) {
-            if (event.key === 'Enter') {
-                const input = event.target;
-                const slider = input.previousElementSibling;
-                slider.value = input.innerText;
-                highlightCategory(slider);
-                updateOverallGrade();
-                moveCursorToNotes(slider);
-            }
-        }
-
-        function highlightCategory(slider) {
-            const score = parseFloat(slider.value);
-            const maxScore = parseFloat(slider.max);
-            const percentage = (score / maxScore) * 100;
-
-            const row = slider.closest('tr').previousElementSibling;
-            const cells = row.querySelectorAll('td[contenteditable="true"]');
-            cells.forEach((cell, index) => {
-                if (index > 1 && index < 6) {
-                    cell.classList.remove('highlight');
-                    cell.style.color = 'black';
-                }
-            });
-
-            if (percentage >= 90) {
-                cells[2].classList.add('highlight');
-            } else if (percentage >= 80) {
-                cells[3].classList.add('highlight');
-            } else if (percentage >= 66) {
-                cells[4].classList.add('highlight');
-            } else {
-                cells[5].classList.add('highlight');
-            }
-        }
-
-        function resetRubric() {
-            // Reset all sliders and score inputs
-            const sliders = document.querySelectorAll('.slider');
-            sliders.forEach(slider => {
-                slider.value = slider.max * 0.5; // Set to 50% minimum grade
-                slider.nextElementSibling.innerText = slider.value;
-            });
-
-            // Reset student name
-            const studentName = document.querySelector('.student-name');
-            studentName.innerText = 'Student Name';
-
-            // Reset overall grade
-            document.getElementById('overallGrade').innerText = '0';
-
-            // Reset the minimum grade toggle to 50%
-            document.getElementById('minGradeToggle').checked = true;
-            toggleMinGrade(document.getElementById('minGradeToggle'));
-            
-            // Clear all notes
-            const notes = document.querySelectorAll('.notes');
-            notes.forEach(note => {
-                note.value = '';
-            });
-        }
-
-        function saveRubric() {
-            const rubricTitle = document.querySelector('.rubric-title').innerText;
-            const totalPoints = document.getElementById('totalPoints').value;
-            const rows = document.querySelectorAll('#rubricTable tbody tr');
-            const rubricData = {
-                title: rubricTitle,
-                totalPoints: totalPoints,
-                criteria: []
-            };
-
-            for (let i = 0; i < rows.length; i += 3) {
-                const criteria = {
-                    name: rows[i].cells[0].innerText,
-                    weight: rows[i].cells[1].innerText.trim(),
-                    descriptions: [
-                        rows[i].cells[2].innerText,
-                        rows[i].cells[3].innerText,
-                        rows[i].cells[4].innerText,
-                        rows[i].cells[5].innerText
-                    ]
-                };
-                rubricData.criteria.push(criteria);
-            }
-
-            localStorage.setItem('rubricData', JSON.stringify(rubricData));
-            alert('Rubric saved successfully!');
-        }
-
-        function loadRubric() {
-            const rubricData = JSON.parse(localStorage.getItem('rubricData'));
-            if (rubricData) {
-                populateRubric(rubricData);
-            } else {
-                alert('No saved rubric found!');
-            }
-        }
-
-        function exportToJSONFile() {
-            const rubricData = getCurrentRubricData();
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rubricData));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "rubric.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
-
-        function generateJSONText() {
-            const rubricData = getCurrentRubricData();
-            document.getElementById('exportJsonText').value = JSON.stringify(rubricData, null, 2);
-        }
-
-        function getCurrentRubricData() {
-            const rubricTitle = document.querySelector('.rubric-title').innerText;
-            const totalPoints = document.getElementById('totalPoints').value;
-            const rows = document.querySelectorAll('#rubricTable tbody tr');
-            const rubricData = {
-                title: rubricTitle,
-                totalPoints: totalPoints,
-                criteria: []
-            };
-
-            for (let i = 0; i < rows.length; i += 3) {
-                const criteria = {
-                    name: rows[i].cells[0].innerText,
-                    weight: rows[i].cells[1].innerText.trim(),
-                    descriptions: [
-                        rows[i].cells[2].innerText,
-                        rows[i].cells[3].innerText,
-                        rows[i].cells[4].innerText,
-                        rows[i].cells[5].innerText
-                    ]
-                };
-                rubricData.criteria.push(criteria);
-            }
-
-            return rubricData;
-        }
-
-        function importFromJSONFile(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const rubricData = JSON.parse(e.target.result);
-                populateRubric(rubricData);
-            };
-
-            reader.readAsText(file);
-        }
-
-        function importFromJSONText() {
-            const jsonText = document.getElementById('importJsonText').value;
-            try {
-                const rubricData = JSON.parse(jsonText);
-                populateRubric(rubricData);
-            } catch (e) {
-                alert('Invalid JSON text.');
-            }
-        }
-
-        function populateRubric(rubricData) {
-            document.querySelector('.rubric-title').innerText = rubricData.title;
-            document.getElementById('totalPoints').value = rubricData.totalPoints;
-            const tbody = document.querySelector('#rubricTable tbody');
-            tbody.innerHTML = '';
-
-            rubricData.criteria.forEach(criteria => {
-                const criteriaRow = document.createElement('tr');
-                criteriaRow.innerHTML = `
-                    <td contenteditable="true">${criteria.name}</td>
-                    <td contenteditable="true" class="weight-input">${criteria.weight}</td>
-                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[0]}</td>
-                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[1]}</td>
-                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[2]}</td>
-                    <td contenteditable="true" onclick="selectText(this)">${criteria.descriptions[3]}</td>
-                    <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
-                `;
-                const sliderRow = document.createElement('tr');
-                sliderRow.innerHTML = `
-                    <td colspan="7">
-                        <div class="slider-container">
-                            <input type="range" min="0" max="${document.getElementById('totalPoints').value * parseFloat(criteria.weight) / 100}" value="0" step="0.25" class="slider" oninput="updateScore(this)">
-                            <div contenteditable="true" class="score-input" onkeypress="handleScoreInput(event)">0</div>
-                        </div>
-                    </td>
-                `;
-                const notesRow = document.createElement('tr');
-                notesRow.innerHTML = '<td colspan="7"><textarea class="notes" placeholder="Enter notes..."></textarea></td>';
-
-                tbody.appendChild(criteriaRow);
-                tbody.appendChild(sliderRow);
-                tbody.appendChild(notesRow);
-            });
-
-            alert('Rubric imported successfully!');
-        }
-
-        function copyToClipboard() {
-            const table = document.getElementById('rubricTable');
-            const range = document.createRange();
-            range.selectNode(table);
-            window.getSelection().removeAllRanges(); // clear current selection
-            window.getSelection().addRange(range); // to select text
-            document.execCommand("copy");
-            window.getSelection().removeAllRanges(); // to deselect
-            alert("Rubric copied to clipboard!");
-        }
-
-        function exportScreenshot() {
-            const element = document.querySelector('.rubric-container');
-            html2canvas(element).then((canvas) => {
-                const link = document.createElement('a');
-                link.download = 'rubric-screenshot.png';
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
-
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const title = document.querySelector('.rubric-title').innerText;
-            const studentName = document.querySelector('.student-name').innerText;
-            const rubricContainer = document.getElementById('rubricContainer');
-
-            // Hide control buttons
-            const controlButtons = document.querySelectorAll('.add-btn, .copy-btn, .export-btn, .reset-btn, .save-btn, .load-btn, .export-json-btn, .import-json-btn, .export-pdf-btn');
-            controlButtons.forEach(button => button.style.display = 'none');
-
-            html2canvas(rubricContainer, { scrollY: -window.scrollY }).then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                const imgProps = doc.getImageProperties(imgData);
-                const pdfWidth = doc.internal.pageSize.getWidth();
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-                doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                doc.save(`${studentName}_${title}.pdf`);
-
-                // Show control buttons again
-                controlButtons.forEach(button => button.style.display = 'inline-block');
-            });
-        }
-
-        function updateOverallGrade() {
-            const totalPoints = document.getElementById('totalPoints').value;
-            const table = document.getElementById('rubricTable');
-            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-            let overallGrade = 0;
-
-            for (let i = 0; i < rows.length; i += 3) {
-                const sliderCell = rows[i + 1].cells[0];
-                const sliderValue = sliderCell.getElementsByTagName('input')[0].value;
-                overallGrade += parseFloat(sliderValue);
-            }
-            document.getElementById('overallGrade').innerText = overallGrade.toFixed(2);
-        }
-
-        document.addEventListener('input', function(event) {
-            if (event.target.classList.contains('score-input')) {
-                updateSlider(event.target);
-            }
+      const crit = Array.isArray(data?.criteria) ? data.criteria : [];
+      crit.forEach((c, idx) => {
+        const desc = Array.isArray(c?.descriptions) ? c.descriptions : [];
+        out.criteria.push({
+          id: c?.id ?? cryptoRandomId(),
+          name: c?.name ?? `Criterion ${idx+1}`,
+          weightPercent: Number(c?.weight ?? 0),
+          levels: {
+            excellent: desc[0] ?? "Excellent description",
+            good: desc[1] ?? "Good description",
+            fair: desc[2] ?? "Fair description",
+            developing: desc[3] ?? "Developing description",
+          },
+          score: null,
+          notes: "",
+          notesOpen: true
         });
+      });
 
-        // Modal Functions
-        function openExportModal() {
-            document.getElementById('exportModal').style.display = 'block';
+      return out;
+    }
+
+    function applyImportData(data){
+      const normalized = normalizeIncomingData(data);
+
+      state.title = normalized.title ?? state.title;
+      state.studentName = normalized.studentName ?? state.studentName;
+      state.totalPoints = clamp(parseFloat(normalized.totalPoints ?? state.totalPoints), 1, 100000);
+      state.weightMode = (normalized.weightMode === "points" || normalized.weightMode === "percent") ? normalized.weightMode : "percent";
+      state.min50 = !!normalized.min50;
+
+      if (normalized.cutoffs){
+        state.cutoffs = {
+          E: parseFloat(normalized.cutoffs.E ?? 90),
+          G: parseFloat(normalized.cutoffs.G ?? 80),
+          F: parseFloat(normalized.cutoffs.F ?? 66),
+        };
+      } else {
+        state.cutoffs = { E: 90, G: 80, F: 66 };
+      }
+      normalizeCutoffs();
+
+      if (normalized.sliderStep != null){
+        const v = parseFloat(normalized.sliderStep);
+        state.sliderStep = (Number.isFinite(v) && v > 0) ? clamp(v, 0.01, 5) : 0.1;
+      } else {
+        state.sliderStep = 0.1;
+      }
+
+      const crit = Array.isArray(normalized.criteria) ? normalized.criteria : [];
+      state.criteria = crit.map(x => ({
+        id: x.id ?? cryptoRandomId(),
+        name: x.name ?? "Criterion",
+        weightPercent: clamp(parseFloat(x.weightPercent ?? 0), 0, 100),
+        levels: {
+          excellent: x.levels?.excellent ?? "Excellent description",
+          good: x.levels?.good ?? "Good description",
+          fair: x.levels?.fair ?? "Fair description",
+          developing: x.levels?.developing ?? "Developing description",
+        },
+        score: (x.score == null) ? null : parseFloat(x.score),
+        notes: x.notes ?? "",
+        notesOpen: (x.notesOpen == null) ? true : !!x.notesOpen,
+      }));
+
+      ensureScoresClamped();
+      render();
+    }
+
+    /***********************
+     * Plain text copy
+     ***********************/
+    function rubricAsPlainText(){
+      const lines = [];
+      lines.push(`${state.title}`);
+      lines.push(`Student: ${state.studentName}`);
+      lines.push(`Total points: ${state.totalPoints}`);
+      lines.push(`Min floor: ${state.min50 ? "50%" : "0%"}`);
+      lines.push(`Cutoffs: E≥${state.cutoffs.E}, G≥${state.cutoffs.G}, F≥${state.cutoffs.F}`);
+      lines.push("");
+
+      state.criteria.forEach((c, i) => {
+        const max = criterionMaxPoints(c);
+        const score = (parseFloat(c.score) || 0);
+        const pct = max > 0 ? (score / max) * 100 : 0;
+        const level = pickedKeyFromPercent(pct);
+        lines.push(`${i+1}. ${c.name}  | Weight: ${toFixed2(parseFloat(c.weightPercent)||0)}%  | Max: ${toFixed2(max)}  | Score: ${toFixed2(score)} (${toFixed2(pct)}%)  | Level: ${level}`);
+        lines.push(`   Excellent: ${c.levels.excellent}`);
+        lines.push(`   Good:      ${c.levels.good}`);
+        lines.push(`   Fair:      ${c.levels.fair}`);
+        lines.push(`   Developing:${c.levels.developing}`);
+        if (c.notes && c.notes.trim()){
+          lines.push(`   Notes: ${c.notes.replace(/\n/g, " / ")}`);
+        }
+        lines.push("");
+      });
+
+      lines.push(`Overall: ${$("#overall").textContent} / ${state.totalPoints}`);
+      return lines.join("\n");
+    }
+
+    /***********************
+     * Screenshot / PDF
+     ***********************/
+    async function exportScreenshot(){
+      const element = document.querySelector(".wrap");
+      const canvas = await html2canvas(element, { scale: 2, scrollY: -window.scrollY });
+      const link = document.createElement("a");
+      link.download = `${safeFilePretty(state.studentName)} - ${safeFilePretty(state.title)}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      showToast("Screenshot exported.");
+    }
+
+    function buildPrintCardForCriterion(c){
+      const max = criterionMaxPoints(c);
+      const score = (parseFloat(c.score) || 0);
+      const pct = max > 0 ? (score / max) * 100 : 0;
+      const level = pickedKeyFromPercent(pct);
+      const levelLabel = level[0].toUpperCase() + level.slice(1);
+
+      const card = document.createElement("div");
+      card.className = "print-card";
+
+      card.innerHTML = `
+        <div class="print-card-head">
+          <div class="print-card-name">${escapeHtml(c.name)}</div>
+          <div class="print-card-meta">W: ${toFixed2(parseFloat(c.weightPercent)||0)}% · Max: ${toFixed2(max)}</div>
+          <div class="print-scoreline">
+            Score: <b>${toFixed2(score)}</b> / ${toFixed2(max)} (${toFixed2(pct)}%) · Level: <b>${escapeHtml(levelLabel)}</b>
+          </div>
+        </div>
+
+        <div class="print-levels">
+          <div class="print-level ${level==='excellent'?selectedLevelClass(level):''}">
+            <h4>Excellent <span>≥ ${toFixed2(state.cutoffs.E)}%</span></h4>
+            <p>${escapeHtml(c.levels.excellent)}</p>
+          </div>
+
+          <div class="print-level ${level==='good'?selectedLevelClass(level):''}">
+            <h4>Good <span>≥ ${toFixed2(state.cutoffs.G)}%</span></h4>
+            <p>${escapeHtml(c.levels.good)}</p>
+          </div>
+
+          <div class="print-level ${level==='fair'?selectedLevelClass(level):''}">
+            <h4>Fair <span>≥ ${toFixed2(state.cutoffs.F)}%</span></h4>
+            <p>${escapeHtml(c.levels.fair)}</p>
+          </div>
+
+          <div class="print-level ${level==='developing'?selectedLevelClass(level):''}">
+            <h4>Developing <span>&lt; ${toFixed2(state.cutoffs.F)}%</span></h4>
+            <p>${escapeHtml(c.levels.developing)}</p>
+          </div>
+        </div>
+
+        ${c.notes && c.notes.trim() ? `
+          <div class="print-notes"><b>Notes:</b><br>${escapeHtml(c.notes)}</div>
+        ` : ``}
+      `;
+
+      return card;
+    }
+
+    async function exportPDF(){
+      const { jsPDF } = window.jspdf;
+
+      const pdf = new jsPDF("p", "pt", "letter");
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 24;
+
+      const usableW = pageW - margin * 2;
+      const usableH = pageH - margin * 2;
+
+      const root = document.createElement("div");
+      root.className = "print-root";
+      root.style.position = "fixed";
+      root.style.left = "-99999px";
+      root.style.top = "0";
+      root.style.width = "860px";
+      root.style.background = "#fff";
+
+      const overall = $("#overall")?.textContent ?? "0.00";
+      const head = document.createElement("div");
+      head.className = "print-header";
+      head.innerHTML = `
+        <div class="print-title">${escapeHtml(state.title)}</div>
+        <p class="print-sub">
+          Student: ${escapeHtml(state.studentName)} · Total: ${escapeHtml(String(state.totalPoints))} · Overall: ${escapeHtml(overall)}
+        </p>
+      `;
+      root.appendChild(head);
+
+      document.body.appendChild(root);
+
+      let y = margin;
+      let first = true;
+
+      async function addCanvasToPdf(canvas){
+        const jpegQuality = 0.80;
+        const imgData = canvas.toDataURL("image/jpeg", jpegQuality);
+
+        const imgW = usableW;
+        const imgH = canvas.height * (imgW / canvas.width);
+
+        if (!first && (y + imgH) > (margin + usableH)){
+          pdf.addPage();
+          y = margin;
         }
 
-        function closeExportModal() {
-            document.getElementById('exportModal').style.display = 'none';
-        }
+        pdf.addImage(imgData, "JPEG", margin, y, imgW, imgH, undefined, "FAST");
+        y += imgH + 10;
+        first = false;
+      }
 
-        function openImportModal() {
-            document.getElementById('importModal').style.display = 'block';
-        }
+      const headerCanvas = await html2canvas(head, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+      await addCanvasToPdf(headerCanvas);
 
-        function closeImportModal() {
-            document.getElementById('importModal').style.display = 'none';
-        }
+      for (const c of state.criteria){
+        const card = buildPrintCardForCriterion(c);
+        root.appendChild(card);
 
-        function selectText(element) {
-            if (document.activeElement !== element) {
-                const range = document.createRange();
-                range.selectNodeContents(element);
-                const sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
-        }
+        const cardCanvas = await html2canvas(card, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+        await addCanvasToPdf(cardCanvas);
 
-        function moveCursorToNotes(slider) {
-            const notes = slider.closest('tr').nextElementSibling.querySelector('.notes');
-            if (notes) {
-                notes.focus();
-            }
-        }
+        card.remove();
+      }
 
-        function copyJSONToClipboard() {
-            const jsonText = document.getElementById('exportJsonText').value;
-            const textarea = document.createElement('textarea');
-            textarea.value = jsonText;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            alert('JSON text copied to clipboard!');
-        }
-    </script>
+      root.remove();
+
+      const filename = `${safeFilePretty(state.studentName)} - ${safeFilePretty(state.title)}.pdf`;
+      pdf.save(filename);
+      showToast("PDF exported.");
+    }
+
+    /***********************
+     * Init + first render
+     ***********************/
+    function initFromHeader(){
+      state.title = $("#rubricTitle").value;
+      state.studentName = $("#studentName").value;
+      state.totalPoints = clamp(parseFloat($("#totalPoints").value), 1, 100000);
+      state.min50 = $("#min50").checked;
+      normalizeCutoffs();
+    }
+
+    initFromHeader();
+    ensureScoresClamped();
+    render();
+    state.criteria.forEach(c => updateCardUIById(c.id));
+
+    // Collapsed header controls
+    $("#collapseHeaderBtn").addEventListener("click", () => {
+      $("#header").classList.add("collapsed");
+    });
+    $("#expandHeaderBtn").addEventListener("click", () => {
+      $("#header").classList.remove("collapsed");
+    });
+  </script>
 </body>
 </html>
